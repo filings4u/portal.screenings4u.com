@@ -9,7 +9,7 @@ header{height:68px;position:fixed;z-index:20;left:250px;right:0;top:0;background
 .chooser{display:flex;align-items:end;gap:12px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);padding:18px 20px;border-radius:11px;margin:20px 0}.chooser label{display:block;font-size:11px;font-weight:800;margin-bottom:8px}.chooser select{width:min(530px,100%);min-width:270px;border:1px solid #cbd8e5;border-radius:8px;padding:12px;background:#fff}.action{background:var(--orange);color:#fff;border:0;border-radius:8px;padding:13px 19px;font-weight:800;font-size:12px}.action:disabled{opacity:.5}
 .status{font-size:12px;color:var(--muted);margin:13px 0}.module-grid{padding:17px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.module{padding:16px;border:1px solid var(--line);border-radius:9px;background:#f8fafc;color:var(--navy);font-size:12px;font-weight:800}.module small{display:block;margin-top:7px;color:var(--muted);font-size:10px;font-weight:500}.notice{border-left:3px solid var(--orange);background:#fff;padding:15px 18px;margin-top:17px;color:var(--muted);font-size:11px;line-height:1.6}.account{font-size:11px;margin-top:19px;color:var(--muted)}.mini-logo{max-width:54px;max-height:42px;object-fit:contain}.error{color:#b13636}
 @media(max-width:850px){header{left:0}.layout aside{position:relative;inset:auto;width:auto;height:auto;padding:10px 16px;background:var(--navy)}aside h3,aside .aside-note{display:none}aside .nav{display:inline-block;width:auto}.content{margin:0;max-width:none;padding:25px 16px}.stats,.module-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.top{padding:0 17px}}@media(max-width:550px){.stats,.module-grid{grid-template-columns:1fr}.logo{width:210px}.org-row{padding:14px 13px}.pill{display:none}.chooser select{min-width:0;width:100%}h1{font-size:26px}}
-</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body>
+.org-row{min-height:78px}.avatar.no-logo{border-color:transparent;background:transparent;width:10px;min-width:10px}.org-title{font-size:14px}.org-sub{font-size:11px}.pill{background:#eef3fa;color:#24467f}.org-row:hover .arrow{transform:translateX(3px)}.arrow{transition:transform .15s}.empty{background:#fff7ee;color:#734918}.content{background:#f4f7fc}</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body>
 <header><div class="top"><img class="logo" alt="Workforce DOT by screenings4u" src="https://raw.githubusercontent.com/filings4u/dot.screenings4u.com/main/images/logo.png"><button type="button" id="signout" class="signout">Sign out</button></div></header>
 <div class="layout"><aside><h3>Account navigation</h3><button type="button" id="nav-workspaces" class="nav">My workspaces</button><div class="aside-note">Workspaces and permissions are verified against your existing Workforce DOT account.</div></aside><main class="content">
 <section id="directory"><div class="crumb">Account / Organization access</div><h1>Your workspaces</h1><p class="lead">Choose an organization to access its authorized DOT program. Only verified account access is shown.</p><div class="panel"><div class="panel-head"><h2>Organizations &amp; programs</h2><small id="count">Verifying access</small></div><div class="org-list" id="org-list"><div class="loading"><span class="loader"></span>Loading your organizations…</div></div></div><div class="account" id="who"></div></section>
@@ -30,8 +30,76 @@ function facts(r){const data=[['Organization',orgName(r)],['Subscription',r.plan
 function showVerified(r){$('verified').classList.remove('hidden');$('chooser').classList.add('hidden');text($('detail-name'),orgName(r));detailAvatar(r);text($('detail-status'),'Organization access verified.');facts(r);$('modules').replaceChildren();for(const m of modules[active.type.code]||[]){const node=document.createElement('div');node.className='module';text(node,m);const sub=document.createElement('small');text(sub,'Integration in progress');node.append(sub);$('modules').append(node)}}
 async function verifySelected(){if(!active)return;const generation=token,option=active.options[Number($('organization-select').value)];if(!option)return;text($('detail-status'),'Select an authorized organization.');return;const btn=$('verify');btn.disabled=true;text($('detail-status'),'Verifying selected organization…');try{const r=await check(active.type.code,{membership_id:option.membership_id,subscription_id:option.subscription_id});if(generation!==token)return;if(r.requires_workspace_selection)throw Error('Select a specific authorized organization.');showVerified(r)}catch(e){if(generation===token){$('verified').classList.add('hidden');text($('detail-status'),e.message)}}finally{btn.disabled=false}}
 function openWorkspace(type,result){token++;active={type,result,options:Array.isArray(result.workspaces)?result.workspaces:[]};$('directory').classList.add('hidden');$('detail').classList.remove('hidden');$('verified').classList.add('hidden');text($('detail-name'),type.label);text($('detail-type'),type.note);text($('detail-status'),'');detailAvatar(result);const required=!!result.requires_workspace_selection;$('chooser').classList.toggle('hidden',!required);$('organization-select').replaceChildren();if(required){for(const [i,w] of active.options.entries()){const opt=document.createElement('option');opt.value=String(i);text(opt,orgName(w)+' — '+(w.plan_name||w.plan_code||w.role_code||'DOT program'));$('organization-select').append(opt)}if(active.options.length===1)verifySelected()}else showVerified(result);window.scrollTo({top:0,behavior:'instant'})}
-function addResult(type,result){const el=document.createElement('button');el.type='button';el.className='org-row';const av=document.createElement('span');av.className='avatar';const logoUrl=result?.branding?.logo_url||result?.organization?.logo_url||result?.ctpa?.logo_url;if(logoUrl&&/^https:\/\//.test(logoUrl)){const img=document.createElement('img');img.src=logoUrl;img.alt='Organization logo';img.onerror=()=>av.replaceChildren();av.append(img)}const info=document.createElement('span');info.className='org-info';const title=document.createElement('div');title.className='org-title';text(title,result.requires_workspace_selection?type.label:orgName(result));const sub=document.createElement('div');sub.className='org-sub';text(sub,type.label+' · '+(result.requires_workspace_selection?'Choose an authorized organization':'Access verified'));info.append(title,sub);const tag=document.createElement('span');tag.className='pill';text(tag,result.requires_workspace_selection?'Choose organization':'Verified');const arrow=document.createElement('span');arrow.className='arrow';text(arrow,'→');el.append(av,info,tag,arrow);el.onclick=()=>openWorkspace(type,result);$('org-list').append(el)}
-async function init(){const {data:{session:current}}=await sb.auth.getSession();if(!current){location.replace('/');return}session=current;text($('who'),'Signed in as '+(current.user.email||'your account'));$('org-list').replaceChildren();let i=0;for(const type of types){(async()=>{try{const r=await check(type.code);if(session!==current)return;if(!approved++)$('org-list').replaceChildren();addResult(type,r)}catch{failures++}finally{if(session!==current)return;completed++;text($('count'),approved?approved+' authorized program'+(approved===1?'':'s'):completed===types.length?'No verified access':'Checking authorization');if(completed===types.length&&!approved){const node=document.createElement('div');node.className='empty';text(node,failures?'No workspaces could be verified. Check your session or try again.':'No authorized programs found.');$('org-list').replaceChildren(node)}}})()}}
+function logoFor(data){return data?.branding?.logo_url||data?.organization?.logo_url||data?.ctpa?.logo_url||null}
+function addResult(type,result){
+ const entries=result.requires_workspace_selection&&Array.isArray(result.workspaces)?result.workspaces:[null];
+ for(const entry of entries){
+  const name=entry?.organization_name||orgName(result);
+  const plan=entry?.plan_name||result.plan?.name||entry?.plan_code||result.plan?.code||'DOT program';
+  const el=document.createElement('button');el.type='button';el.className='org-row';
+  const av=document.createElement('span');av.className='avatar';
+  const image=logoFor(result);
+  if(image&&/^https:\/\//.test(image)){const img=document.createElement('img');img.src=image;img.alt=name+' logo';img.onerror=()=>av.replaceChildren();av.append(img)}
+  else av.classList.add('no-logo');
+  const info=document.createElement('span');info.className='org-info';
+  const title=document.createElement('div');title.className='org-title';text(title,name);
+  const sub=document.createElement('div');sub.className='org-sub';text(sub,type.label+' · '+plan);
+  info.append(title,sub);
+  const tag=document.createElement('span');tag.className='pill';text(tag,'Open workspace');
+  const arrow=document.createElement('span');arrow.className='arrow';text(arrow,'→');
+  el.append(av,info,tag,arrow);
+  el.onclick=async()=>{
+   openWorkspace(type,result);
+   if(!entry)return;
+   const current=token;
+   $('chooser').classList.add('hidden');text($('detail-name'),name);text($('detail-status'),'Verifying your access to '+name+'…');
+   try{
+    const checked=await check(type.code,{membership_id:entry.membership_id,subscription_id:entry.subscription_id});
+    if(current!==token)return;
+    if(checked.requires_workspace_selection)throw Error('Organization selection is still required.');
+    showVerified(checked);
+   }catch(e){if(current===token){$('verified').classList.add('hidden');text($('detail-status'),e.message||'Unable to verify access.');$('chooser').classList.remove('hidden')}}
+  };
+  $('org-list').append(el);
+ }
+ return entries.length;
+}
+async function init(){
+ const {data:{session:current}}=await sb.auth.getSession();
+ if(!current){location.replace('/');return}
+ session=current;text($('who'),'Signed in as '+(current.user.email||'your account'));
+ $('org-list').replaceChildren();
+ const progress=document.createElement('div');progress.className='loading';progress.setAttribute('role','status');
+ progress.innerHTML='<span class="loader"></span>Checking your authorized organizations…';$('org-list').append(progress);
+ let shown=0,done=0,denied=0,failed=0;
+ for(const type of types){
+  (async()=>{
+   try{
+    const result=await check(type.code);
+    if(session!==current)return;
+    if(!shown)progress.remove();
+    shown+=addResult(type,result);
+   }catch(e){
+    if(String(e?.message||'').includes('not authorized'))denied++;
+    else failed++;
+   }finally{
+    if(session!==current)return;
+    done++;
+    text($('count'),shown?shown+' authorized workspace'+(shown===1?'':'s'):done===types.length?'No verified workspaces':'Checking access');
+    if(done===types.length){
+     progress.remove();
+     if(failed){
+      const warning=document.createElement('div');warning.className='empty';
+      warning.textContent=shown?'Some workspaces could not be checked. Refresh to retry.':'Authorization could not be completed. Please refresh to retry.';
+      $('org-list').append(warning);
+     }else if(!shown){
+      const empty=document.createElement('div');empty.className='empty';empty.textContent='No authorized DOT workspaces were found for this account.';$('org-list').append(empty);
+     }
+    }
+   }
+  })();
+ }
+}
 $('back').onclick=goBack;$('nav-workspaces').onclick=goBack;$('verify').onclick=verifySelected;$('signout').onclick=async()=>{await sb.auth.signOut();location.replace('/')};init().catch(()=>{$('org-list').textContent='Unable to load account access. Please refresh.'});
 })();
 </script></body></html>
