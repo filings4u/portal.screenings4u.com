@@ -22,9 +22,10 @@ const portals=[
 {code:'employee_dot',label:'Employee',note:'Personal DOT records and training'},
 {code:'owner_operator',label:'Owner-Operator',note:'Personal compliance and DOT programs'}
 ];
+let lastChecks={denied:0,failed:0,expired:0};
 async function verify(session,code,selection){
 try{const res=await fetch(ROOT+'/functions/v1/dot-session-context',{method:'POST',headers:{'Content-Type':'application/json',apikey:KEY,Authorization:'Bearer '+session.access_token},body:JSON.stringify({portal_code:code,...(selection||{})})});
-if(!res.ok)return null;const result=await res.json();return result.ok&&result.has_access===true?result:null}catch{return null}}
+if(!res.ok){if(res.status===403)lastChecks.denied++;else if(res.status===401)lastChecks.expired++;else lastChecks.failed++;return null;}const result=await res.json();return result.ok&&result.has_access===true?result:null}catch{lastChecks.failed++;return null}}
 const groups={
 ctpa_dot:['Employers','Compliance','Testing','Billing','Reports'],
 ctpa_employer_dot:['Dashboard','Employees','Testing','Documents'],
@@ -71,6 +72,7 @@ $('login').classList.toggle('hidden',!!session);$('workspace').classList.toggle(
 if(!session)return;
 $('who').textContent='Signed in as '+(session.user.email||'your account');
 const cards=$('cards');cards.replaceChildren();message('Checking your existing DOT access…');
+lastChecks={denied:0,failed:0,expired:0};
 const results=await Promise.all(portals.map(async p=>({p,result:await verify(session,p.code)})));
 if(generation!==checks)return;
 for(const {p,result} of results){if(!result)continue;
@@ -79,7 +81,7 @@ const tag=document.createElement('span');tag.className='tag';tag.textContent=res
 const title=document.createElement('strong');title.textContent=p.label;
 const note=document.createElement('small');note.textContent=p.note;
 el.append(tag,title,note);el.onclick=()=>choose(p,result,session);cards.append(el)}
-message(cards.childElementCount?'Choose a DOT workspace to continue.':'No eligible DOT workspaces were confirmed. Existing accounts and portal access have not been changed.');
+message(cards.childElementCount?'Choose a DOT workspace to continue. Some other roles may return 403 (not authorized), which is normal.':lastChecks.expired?'Your login was not accepted by the DOT authorization service. Please sign out, then sign in again.':lastChecks.failed?'Some authorization checks failed due to a service or network error. Please retry later.':'You are signed in, but no eligible DOT workspaces were found. A 403 response means that role is not authorized for this account.');
 }
 $('login-form').addEventListener('submit',async e=>{e.preventDefault();message('Signing in…');const button=e.target.querySelector('button');button.disabled=true;try{const {error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;$('password').value='';await refresh()}catch(err){message(err.message||'Sign in failed')}finally{button.disabled=false}});
 $('signout').onclick=async()=>{await sb.auth.signOut();$('cards').replaceChildren();message('Signed out');await refresh()};
