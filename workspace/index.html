@@ -89,6 +89,6 @@ async function init(){
   })();
  }
 }
-$('back').onclick=goBack;$('nav-workspaces').onclick=goBack;$('verify').onclick=verifySelected;$('signout').onclick=async()=>{await sb.auth.signOut();location.replace('/')};init().catch(()=>{$('org-list').textContent='Unable to load account access. Please refresh.'});
+$('back').onclick=goBack;$('verify').onclick=verifySelected;$('signout').onclick=async()=>{await sb.auth.signOut();location.replace('/')};init().catch(()=>{$('org-list').textContent='Unable to load account access. Please refresh.'});
 })();
 </script></body></html>
