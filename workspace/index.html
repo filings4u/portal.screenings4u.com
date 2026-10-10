@@ -71,7 +71,7 @@ async function init(){
   container.replaceChildren();text($('count'),result.workspaces.length+' authorized workspace'+(result.workspaces.length===1?'':'s'));
   if(!result.workspaces.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No active DOT workspaces were found for this account. Contact your organization administrator if an account is missing.';container.append(empty);return}
   for(const w of result.workspaces){
-   const type=types.find(t=>t.code===w.portal_code)||{code:w.portal_code,label:(w.plan_name||w.portal_code.split(':').pop()||'Account').replace(/\\b\\w/g,c=>c.toUpperCase()),note:'Assigned screenings4u account'};
+   const type=types.find(t=>t.code===w.portal_code)||{code:w.portal_code,label:(w.plan_name||w.portal_code.split(':').pop()||'Account').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),note:'Assigned screenings4u account'};
    const mock={requires_workspace_selection:true,workspaces:[w],organization_name:w.organization_name,branding:w.branding,organization:w.organization};
    addResult(type,mock);
   }
