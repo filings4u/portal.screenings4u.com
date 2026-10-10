@@ -40,7 +40,7 @@ function addResult(type,result){
   const arrow=document.createElement('span');arrow.className='arrow';text(arrow,'→');
   el.append(av,info,tag,arrow);
   el.onclick=async()=>{
-   if(type.code.includes(':')){openWorkspace(type,result,true);$('chooser').classList.add('hidden');text($('detail-name'),name);text($('detail-type'),type.label);text($('detail-status'),'This account is assigned to your signed-in user. Direct portal launch is not yet connected for this workspace.');$('verified').classList.add('hidden');return}
+   if(type.code.includes(':')){openWorkspace(type,result,true);$('chooser').classList.add('hidden');text($('detail-name'),name);text($('detail-type'),type.label);text($('detail-status'),'This account has an active assignment. Its destination is not connected yet; your existing portal permissions remain unchanged.');$('verified').classList.add('hidden');return}
    openWorkspace(type,result,!!entry);
    if(!entry)return;
    const current=token;
@@ -68,8 +68,8 @@ async function init(){
   if(!response.ok)throw Error(response.status===401?'Session expired':'Workspace service unavailable');
   const result=await response.json();if(!result.ok||!Array.isArray(result.workspaces))throw Error('Could not retrieve workspaces');
   if(session!==current)return;
-  container.replaceChildren();text($('count'),result.workspaces.length+' authorized workspace'+(result.workspaces.length===1?'':'s'));
-  if(!result.workspaces.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No active DOT workspaces were found for this account. Contact your organization administrator if an account is missing.';container.append(empty);return}
+  container.replaceChildren();text($('count'),result.workspaces.length+' assigned workspace'+(result.workspaces.length===1?'':'s'));
+  if(!result.workspaces.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No authorized workspaces were returned. Contact your account administrator if you expect more access.';container.append(empty);return}
   for(const w of result.workspaces){
    const type=types.find(t=>t.code===w.portal_code)||{code:w.portal_code,label:(w.plan_name||w.portal_code.split(':').pop()||'Account').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),note:'Assigned screenings4u account'};
    const mock={requires_workspace_selection:true,workspaces:[w],organization_name:w.organization_name,branding:w.branding,organization:w.organization};
@@ -78,7 +78,7 @@ async function init(){
  }catch(e){
   if(session!==current)return;
   container.replaceChildren();text($('count'),'Unable to load');
-  const error=document.createElement('div');error.className='empty';error.textContent='Could not load your organizations. ';
+  const error=document.createElement('div');error.className='empty';error.textContent='Could not load your accounts. ';
   const retry=document.createElement('button');retry.type='button';retry.className='action';retry.textContent='Retry';retry.onclick=init;error.append(retry);container.append(error)
  }
 }
