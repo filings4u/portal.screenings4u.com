@@ -35,7 +35,7 @@ function addResult(type,result){
   else av.classList.add('no-logo');
   const info=document.createElement('span');info.className='org-info';
   const title=document.createElement('div');title.className='org-title';text(title,entry?.subscription_id&&plan!=='DOT program'?plan:name);
-  const sub=document.createElement('div');sub.className='org-sub';text(sub,entry?.subscription_id?name+' · '+type.label:type.label+' · '+plan);
+  const sub=document.createElement('div');sub.className='org-sub';text(sub,entry?.subscription_id?name+' · '+type.label+(entry.subscription_listing_only?' · Portal connection pending':''):type.label+' · '+plan);
   info.append(title,sub);
   const tag=document.createElement('span');tag.className='pill';text(tag,'Open workspace');
   const arrow=document.createElement('span');arrow.className='arrow';text(arrow,'→');
@@ -44,6 +44,7 @@ function addResult(type,result){
    if(type.code.includes(':')){openWorkspace(type,result,true);$('chooser').classList.add('hidden');text($('detail-name'),name);text($('detail-type'),type.label);text($('detail-status'),'This account has an active assignment. Its destination is not connected yet; your existing portal permissions remain unchanged.');$('verified').classList.add('hidden');return}
    openWorkspace(type,result,!!entry);
    if(!entry)return;
+   if(entry.subscription_listing_only){$('chooser').classList.add('hidden');text($('detail-name'),entry.plan_name||name);text($('detail-status'),'This DOT subscription is associated with your account. Portal entry is not connected or independently verified yet.');$('verified').classList.add('hidden');return;}
    const current=token;
    $('chooser').classList.add('hidden');text($('detail-name'),name);text($('detail-status'),'Verifying your access to '+name+'…');
    try{
@@ -69,11 +70,11 @@ async function init(){
   if(!response.ok)throw Error(response.status===401?'Session expired':'Workspace service unavailable');
   const result=await response.json();if(!result.ok||!Array.isArray(result.workspaces))throw Error('Could not retrieve workspaces');
   if(session!==current)return;
-  const dotWorkspaces=result.workspaces.filter(w=>types.some(t=>t.code===w.portal_code));
+  const dotWorkspaces=result.workspaces.filter(w=>types.some(t=>t.code===w.portal_code)||['fmcsa_dot','faa_dot','fra_dot','fta_dot','phmsa_dot','uscg_dot'].includes(w.portal_code));
   container.replaceChildren();text($('count'),dotWorkspaces.length+' DOT account'+(dotWorkspaces.length===1?'':'s'));
   if(!dotWorkspaces.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No authorized workspaces were returned. Contact your account administrator if you expect more access.';container.append(empty);return}
   for(const w of dotWorkspaces){
-   const type=types.find(t=>t.code===w.portal_code);
+   const type=types.find(t=>t.code===w.portal_code)||{code:w.portal_code,label:w.portal_code.replace('_dot','').toUpperCase()+' DOT',note:'DOT program subscription'};
    const mock={requires_workspace_selection:true,workspaces:[w],organization_name:w.organization_name,branding:w.branding,organization:w.organization};
    addResult(type,mock);
   }
