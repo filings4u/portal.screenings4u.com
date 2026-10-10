@@ -54,39 +54,29 @@ function addResult(type,result){
  return entries.length;
 }
 async function init(){
- const {data:{session:current}}=await sb.auth.getSession();
- if(!current){location.replace('/');return}
+ const {data:{session:current},error:authError}=await sb.auth.getSession();
+ if(authError||!current){location.replace('/');return}
  session=current;text($('who'),'Signed in as '+(current.user.email||'your account'));
- $('org-list').replaceChildren();
- const progress=document.createElement('div');progress.className='loading';progress.setAttribute('role','status');
- progress.innerHTML='<span class="loader"></span>Checking your authorized organizations…';$('org-list').append(progress);
- let shown=0,done=0,denied=0,failed=0;
- for(const type of types){
-  (async()=>{
-   try{
-    const result=await check(type.code);
-    if(session!==current)return;
-    if(!shown)progress.remove();
-    shown+=addResult(type,result);
-   }catch(e){
-    if(String(e?.message||'').includes('not authorized'))denied++;
-    else failed++;
-   }finally{
-    if(session!==current)return;
-    done++;
-    text($('count'),shown?shown+' authorized workspace'+(shown===1?'':'s'):done===types.length?'No verified workspaces':'Checking access');
-    if(done===types.length){
-     progress.remove();
-     if(failed){
-      const warning=document.createElement('div');warning.className='empty';
-      warning.textContent=shown?'Some workspaces could not be checked. Refresh to retry.':'Authorization could not be completed. Please refresh to retry.';
-      $('org-list').append(warning);
-     }else if(!shown){
-      const empty=document.createElement('div');empty.className='empty';empty.textContent='No authorized DOT workspaces were found for this account.';$('org-list').append(empty);
-     }
-    }
-   }
-  })();
+ const container=$('org-list');container.replaceChildren();text($('count'),'Loading organizations');
+ const loading=document.createElement('div');loading.className='loading';loading.textContent='Loading your organizations…';container.append(loading);
+ try{
+  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),12000);
+  let response;try{response=await fetch(ROOT+'/functions/v1/workforce-workspaces',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json',Authorization:'Bearer '+current.access_token},body:'{}',signal:controller.signal})}finally{clearTimeout(timer)}
+  if(!response.ok)throw Error(response.status===401?'Session expired':'Workspace service unavailable');
+  const result=await response.json();if(!result.ok||!Array.isArray(result.workspaces))throw Error('Could not retrieve workspaces');
+  if(session!==current)return;
+  container.replaceChildren();text($('count'),result.workspaces.length+' authorized workspace'+(result.workspaces.length===1?'':'s'));
+  if(!result.workspaces.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No authorized DOT organizations were found.';container.append(empty);return}
+  for(const w of result.workspaces){
+   const type=types.find(t=>t.code===w.portal_code);if(!type)continue;
+   const mock={requires_workspace_selection:true,workspaces:[w],organization_name:w.organization_name};
+   addResult(type,mock);
+  }
+ }catch(e){
+  if(session!==current)return;
+  container.replaceChildren();text($('count'),'Unable to load');
+  const error=document.createElement('div');error.className='empty';error.textContent='Could not load your organizations. ';
+  const retry=document.createElement('button');retry.type='button';retry.className='action';retry.textContent='Retry';retry.onclick=init;error.append(retry);container.append(error)
  }
 }
 $('back').onclick=goBack;$('verify').onclick=verifySelected;$('signout').onclick=async()=>{await sb.auth.signOut();location.replace('/')};init().catch(()=>{$('org-list').textContent='Unable to load account access. Please refresh.'});
