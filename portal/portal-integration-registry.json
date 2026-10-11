@@ -194,8 +194,9 @@
       "business_unit": "nondot",
       "repository": "ctpa-non-dot.screenings4u.com",
       "session_function": "nondot-workforce-session-context",
-      "connection_status": "inventory_only",
-      "customer_workspace": true
+      "connection_status": "read_only_adapter_source",
+      "customer_workspace": true,
+      "notes": "Existing CTPA source and grant code confirmed; read-only selected-account integration committed, staging tests outstanding."
     },
     {
       "domain": "ctpa-employer-non-dot.screenings4u.com",
@@ -203,9 +204,9 @@
       "business_unit": "nondot",
       "repository": null,
       "session_function": "nondot-workforce-session-context",
-      "connection_status": "inventory_only",
+      "connection_status": "blocked_unverified_portal_identity",
       "customer_workspace": true,
-      "notes": "Existing workforce portal code or legacy host needs account-scoped session authorization. No unified operational adapter yet."
+      "notes": "No matching repository confirmed in connected GitHub list and no matching workforce_portal_access rows at audit time. Do not present as authorized; establish exact account assignment and legacy implementation before integration."
     },
     {
       "domain": "ctpa-employee-non-dot.screenings4u.com",
@@ -213,9 +214,9 @@
       "business_unit": "nondot",
       "repository": null,
       "session_function": "nondot-workforce-session-context",
-      "connection_status": "inventory_only",
+      "connection_status": "blocked_unverified_portal_identity",
       "customer_workspace": true,
-      "notes": "Existing workforce portal code or legacy host needs account-scoped session authorization. No unified operational adapter yet."
+      "notes": "No matching repository confirmed in connected GitHub list and no matching workforce_portal_access rows at audit time. Do not present as authorized; establish exact account assignment and legacy implementation before integration."
     },
     {
       "domain": "ctpa-driver-non-dot.screenings4u.com",
@@ -223,9 +224,9 @@
       "business_unit": "nondot",
       "repository": null,
       "session_function": "nondot-workforce-session-context",
-      "connection_status": "inventory_only",
+      "connection_status": "blocked_unverified_portal_identity",
       "customer_workspace": true,
-      "notes": "Existing workforce portal code or legacy host needs account-scoped session authorization. No unified operational adapter yet."
+      "notes": "No matching repository confirmed in connected GitHub list and no matching workforce_portal_access rows at audit time. Do not present as authorized; establish exact account assignment and legacy implementation before integration."
     },
     {
       "domain": "employer-non-dot.screenings4u.com",
