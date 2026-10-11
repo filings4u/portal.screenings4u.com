@@ -66,6 +66,8 @@ jobs:
               deno check --no-config "${entry}"
             fi
           done
+      - name: Verify NON-DOT selected-account scope guards
+        run: python3 portal/tests/verify-nondot-account-scoping.py
       - name: Type-check branded mail helpers
         run: |
           deno check --no-config portal/email/renderer.ts portal/email/brand-lookup.ts
