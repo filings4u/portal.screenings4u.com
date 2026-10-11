@@ -396,7 +396,35 @@ async function manageCtpaBilling(){
    const table=document.createElement('table');table.className='record-table';const hdr=document.createElement('tr');for(const name of ['Invoice','Recipient','Status','Due date','Amount due']){const cell=document.createElement('th');cell.textContent=name;hdr.append(cell)}const thead=document.createElement('thead');thead.append(hdr);table.append(thead);
    const tbody=document.createElement('tbody');for(const record of rows.slice(0,100)){const tr=document.createElement('tr');for(const value of [record.invoice_number,record.recipient_email,record.status,record.due_at,record.amount_due]){const td=document.createElement('td');td.textContent=String(value??'—');tr.append(td)}tbody.append(tr)}table.append(tbody);list.append(table)
   }
-  search.oninput=draw;draw();feedback.textContent='Invoice changes require the existing authorized billing workflow. Payment data is not exposed in this list.';
+  
+  const create=document.createElement('button');create.type='button';create.className='utility';create.textContent='Create draft invoice';create.disabled=data.can_manage!==true;body.insertBefore(create,list);
+  const editor=document.createElement('div');body.append(editor);
+  const employers=Array.isArray(data.employers)?data.employers:[];
+  function openInvoiceForm(original){
+   editor.replaceChildren();const form=document.createElement('form');form.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:20px;border-top:1px solid #d9e4f1;padding-top:18px';
+   const employer=document.createElement('select');employer.name='employer_id';employer.required=true;for(const e of employers){const opt=document.createElement('option');opt.value=e.id;opt.textContent=e.legal_name||e.dba_name||e.id;employer.append(opt)}employer.value=original?.employer_id||employers[0]?.id||'';
+   const wrap=document.createElement('label');wrap.textContent='Employer';wrap.append(employer);form.append(wrap);
+   function field(key,label,type='text',value=''){const l=document.createElement('label');l.textContent=label;const el=document.createElement('input');el.name=key;el.type=type;el.required=true;el.value=String(value??'');el.style.cssText='display:block;width:100%;padding:10px;border:1px solid #cbd8e8;border-radius:8px';l.append(el);form.append(l)}
+   field('recipient_email','Recipient email','email',original?.recipient_email);
+   field('due_at','Due date','date',String(original?.due_at||'').slice(0,10));
+   const item=original?.ctpa_client_invoice_items?.[0]||{};
+   field('description','Invoice line item','text',item.description);
+   field('quantity','Quantity','number',item.quantity||1);
+   field('unit_amount','Unit amount in dollars','number',item.unit_amount??0);
+   const save=document.createElement('button');save.type='submit';save.className='utility';save.textContent='Save draft invoice';form.append(save);
+   const cancel=document.createElement('button');cancel.type='button';cancel.className='utility';cancel.textContent='Cancel';cancel.onclick=()=>editor.replaceChildren();form.append(cancel);
+   form.onsubmit=async ev=>{
+    ev.preventDefault();save.disabled=true;feedback.textContent='Saving invoice…';
+    const itemValue={description:form.elements.namedItem('description').value.trim(),quantity:Number(form.elements.namedItem('quantity').value),unit_amount:Number(form.elements.namedItem('unit_amount').value)};
+    if(!(itemValue.quantity>0)||itemValue.unit_amount<0||!Number.isFinite(itemValue.unit_amount)){feedback.textContent='Enter a valid quantity and amount.';save.disabled=false;return}
+    const invoice={employer_id:employer.value,recipient_email:form.elements.namedItem('recipient_email').value.trim(),due_at:form.elements.namedItem('due_at').value,items:[itemValue]};
+    if(original?.id)invoice.id=original.id;
+    try{await call(original?'update_client_invoice':'create_client_invoice',{invoice});editor.replaceChildren();feedback.textContent='Draft invoice saved. Reopen Billing to refresh the list.'}catch(e){feedback.textContent=e.message||'Invoice could not be saved.'}finally{save.disabled=false}
+   };editor.append(form)
+  }
+  create.onclick=()=>openInvoiceForm(null);
+  search.oninput=draw;draw();feedback.textContent='Financial changes require an authorized billing role. Invoices are created as drafts.';
+
  }catch(e){if(selectedWorkspace===w)panel('Billing management unavailable',e.message||'Unable to validate billing access.')}
 }
 
