@@ -8,7 +8,7 @@ window.S4U_ACCESS_CONFIG = Object.freeze({
   turnstileSiteKey: '',
   /* Authenticated POST: return {portals:[{id,title,organization,plan,portal_type,launch_url}]}.
      Backend MUST verify each subscription and generate only authorized launch URLs. */
-  selectorEndpoint: '',
+  selectorEndpoint: 'https://elpbnytpciqnbexiaebp.supabase.co/functions/v1/central-portal-selector',
   /* Central session handoff MUST be implemented server-side before relying on cross-domain SSO. */
   redirectAfterSignIn: '/selector.html'
 });
