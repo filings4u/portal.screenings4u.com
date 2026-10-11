@@ -74,3 +74,8 @@ No production systems are modified by this file. No Phase 1 completion claim is 
 - Added source-only discovery for active DOT `ctpas` and NON-DOT `workforce_ctpas` with signed-in organization membership, including safe `entry_only` workspaces when no subscribed modules are resolved. Shared shell shows a restricted dashboard with no business data in that case.
 - Important remaining gap: cross-business C/TPA account identity must be verified so a C/TPA with a record in one business family can enter both portals even if the second family has no separately created C/TPA row. Do not infer that organizations with unrelated memberships are the same C/TPA. Also update selected-context services to split entry eligibility from subscription/module eligibility and test with multi-role C/TPA users.
 - No customer records or feature permissions were expanded by these entry-only views. Staging tests and backend verification still required.
+
+## Cross-business C/TPA discovery update
+- Inspected organization-linked C/TPA records: 2 organizations have both DOT and NON-DOT C/TPA records, 16 have DOT only, 2 have NON-DOT only (snapshot at audit).
+- Discovery now offers the opposite portal as `entry_only` for a signed-in member of an active C/TPA organization even when the opposite business row does not exist. Such entries are restricted setup workspaces: no sponsored accounts, privileged modules or business data are exposed.
+- Business-specific membership/tenant and role permissions must still be reconciled for operational provisioning. Portal entry does not automatically create the missing business record, nor grant subscription features. Backend provisioning plus staging isolation tests remain an open Phase 1 gate.
