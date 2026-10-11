@@ -33,3 +33,8 @@ Sequence: **connect/verify every requested customer portal** first; only then co
 - A new, separate account-scoped verification endpoint is required. Accept explicit selected membership/subscription/organization, authenticate signed-in user, validate active exact memberships, portal grant, correct C/TPA/employer/employee/driver relation and active relevant plan. Do not return any business data on mismatch.
 - Do not treat the public NON-DOT site or internal NON-DOT management portal as customer workspaces.
 - The source-only backend write attempted in this work session was blocked by a safety check; no new NON-DOT backend function was created or deployed.
+
+## Scoped NON-DOT validator added (source only)
+- `supabase/functions/unified-nondot-selected-context/index.ts` now validates explicit C/TPA or Employer workforce organization, active user membership, exact enabled portal/subscription grant, tenant-matched account, active matching subscription, and active plan. It does not authorize NON-DOT employee or driver portals.
+- Shared shell's C/TPA NON-DOT overview calls the new validator first, then requires the legacy session and overview responses to match exactly. Legacy first-membership behavior can still block legitimate secondary accounts until the legacy overview is made selection-aware.
+- This is committed GitHub source only. Deploy and test in staging first; do not mark any portal fully integrated.
