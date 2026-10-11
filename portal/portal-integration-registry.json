@@ -27,7 +27,8 @@
       "repository": null,
       "session_function": "employee-dot-session",
       "connection_status": "inventory_only",
-      "customer_workspace": true
+      "customer_workspace": true,
+      "notes": "Legacy hostname does not map to a distinct confirmed C/TPA employee code; employee_dot service exists. Requires entitlement/identity resolution before enabling."
     },
     {
       "domain": "ctpa-driver-dot.screenings4u.com",
@@ -35,8 +36,9 @@
       "business_unit": "dot",
       "repository": null,
       "session_function": "ctpa-driver-dot-session",
-      "connection_status": "inventory_only",
-      "customer_workspace": true
+      "connection_status": "read_only_adapter_source",
+      "customer_workspace": true,
+      "notes": "Fail-closed driver assignment verification; existing function picks first eligible assignment. Multi-assignment routing not yet supported."
     },
     {
       "domain": "faa-employer-dot.screenings4u.com",
