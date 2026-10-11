@@ -2,7 +2,7 @@
 // A trusted backend must resolve verified account branding and recipients first.
 export type MailBrand={name:string;logo_url:string|null;primary_color:string;accent_color:string;footer:string};
 export type MailContent={subject:string;title:string;message:string;action_label?:string;action_url?:string;details?:Record<string,string|number|null>};
-const escapeHtml=(v:unknown)=>String(v??"").replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x]||x));
+const escapeHtml=(v:unknown)=>String(v??"").replace(/[&<>"']/g,x=>(({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"} as Record<string,string>)[x]||x));
 const safeColor=(x:string|undefined,defaultColor:string)=>/^#[0-9a-f]{6}$/i.test(x||"")?x!:defaultColor;
 const safeUrl=(u:string|undefined)=>{if(!u)return "";try{const x=new URL(u);return x.protocol==="https:"?x.href:""}catch{return ""}};
 export function renderBrandedEmail(brand:MailBrand,input:MailContent){
