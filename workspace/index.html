@@ -34,8 +34,8 @@ function addResult(type,result){
   if(image){const img=document.createElement('img');img.src=image;img.alt=name+' logo';img.loading='lazy';img.decoding='async';img.onerror=()=>{av.replaceChildren();av.classList.add('no-logo')};av.append(img)}
   else av.classList.add('no-logo');
   const info=document.createElement('span');info.className='org-info';
-  const title=document.createElement('div');title.className='org-title';text(title,entry?.subscription_id&&plan!=='Screenings4u account'?plan:name);
-  const sub=document.createElement('div');sub.className='org-sub';text(sub,entry?.subscription_id?name+' · '+type.label+(entry.subscription_listing_only?' · Verification pending':''):type.label+' · '+plan);
+  const title=document.createElement('div');title.className='org-title';text(title,name);
+  const sub=document.createElement('div');sub.className='org-sub';text(sub,type.label+' · '+plan+(entry?.subscription_listing_only?' · Verification pending':''));
   info.append(title,sub);
   const tag=document.createElement('span');tag.className='pill';text(tag,'Open workspace');
   const arrow=document.createElement('span');arrow.className='arrow';text(arrow,'→');
