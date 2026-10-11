@@ -28,7 +28,8 @@ Deno.serve(async req=>{
    ?(portal==="ctpa_dot"?"workforce_memberships":"organization_memberships")
    :(portal==="ctpa_dot"?"organization_memberships":"workforce_memberships");
   if(!["verified_ctpa_membership","cross_business_ctpa_entry"].includes(source))return J({ok:false,error:"Unsupported entry source"},403);
-  const membership=await db.from(sourceTable).select(sourceTable==="workforce_memberships"?"id,organization_id,tenant_id":"id,organization_id").eq("id",mid).eq("user_id",uid).eq("organization_id",org).eq("status","active").maybeSingle();
+  const membershipQuery:any=db.from(sourceTable).select(sourceTable==="workforce_memberships"?"id,organization_id,tenant_id":"id,organization_id").eq("id",mid).eq("user_id",uid).eq("organization_id",org).eq("status","active");
+  const membership=await membershipQuery.maybeSingle() as {data:({id:string;organization_id:string;tenant_id?:string})|null;error:unknown};
   if(membership.error)throw membership.error;
   if(!membership.data)return J({ok:false,error:"Membership unavailable"},403);
   const originTable=sourceTable==="organization_memberships"?"ctpas":"workforce_ctpas";
