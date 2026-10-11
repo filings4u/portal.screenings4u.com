@@ -23,3 +23,9 @@
 - Launch readiness and monitored rollout, only after acceptance.
 
 No production systems are modified by this file. No Phase 1 completion claim is made.
+
+## C/TPA-sponsored NON-DOT audit (2026-10-10)
+- Confirmed `ctpa_workforce` in existing C/TPA NON-DOT app and live portal-access grants.
+- `ctpa_employer_workforce`, `ctpa_employee_workforce`, `ctpa_driver_workforce` do not currently appear in the inspected `workforce_portal_access` grant rows, and no corresponding legacy app repositories were confirmed. Their requested hostnames are requirements, not evidence of deployed, authorized workspaces.
+- Keep those variants unavailable in unified discovery until the identity model, deployed app, explicit subscription and individual account access can be verified. Do not alias them to C/TPA admin privileges.
+- The branded email event catalog and shared renderer already exist, but recipient/resource checks, triggers, transport, logo verification and safe staged testing remain unfinished. Complete these **after Phase 1**, before declaring Phase 2 finished; do not send customer notifications now.
