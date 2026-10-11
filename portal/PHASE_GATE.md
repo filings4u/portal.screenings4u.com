@@ -68,3 +68,9 @@ No production systems are modified by this file. No Phase 1 completion claim is 
 - A direct employer administers its own customer accounts. An owner-operator may have both driver and employer permissions, determined independently.
 - Current unified discovery, NON-DOT account validator and C/TPA read-only adapters still couple C/TPA entry to subscription_id and must be refactored consistently before this requirement is operational.
 - Do not relax the backend subscription checks for module actions; return both portals with safe, limited navigation when no matching entitlement is present.
+
+## C/TPA dual-access correction (2026-10-10)
+- C/TPAs are entitled to both DOT and NON-DOT portal entry automatically; subscriptions gate features and action entitlements inside each workspace, not entry.
+- Added source-only discovery for active DOT `ctpas` and NON-DOT `workforce_ctpas` with signed-in organization membership, including safe `entry_only` workspaces when no subscribed modules are resolved. Shared shell shows a restricted dashboard with no business data in that case.
+- Important remaining gap: cross-business C/TPA account identity must be verified so a C/TPA with a record in one business family can enter both portals even if the second family has no separately created C/TPA row. Do not infer that organizations with unrelated memberships are the same C/TPA. Also update selected-context services to split entry eligibility from subscription/module eligibility and test with multi-role C/TPA users.
+- No customer records or feature permissions were expanded by these entry-only views. Staging tests and backend verification still required.
