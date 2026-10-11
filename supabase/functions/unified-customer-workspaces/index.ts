@@ -41,8 +41,12 @@ Deno.serve(async req=>{
   const dotSubs=dotSubscriptionIds.length?await db.from("subscriptions").select("id,tenant_id,status,plan_id").in("id",dotSubscriptionIds).in("status",["active","trial","trialing"]):{data:[],error:null};
   if(dotSubs.error)throw dotSubs.error;
   const dotSubMap=new Map((dotSubs.data||[]).map(x=>[x.id,x]));
+  const dotPlanIds=[...new Set((dotSubs.data||[]).map(x=>x.plan_id).filter(Boolean))];
+  const dotPlans=dotPlanIds.length?await db.from("plans").select("id").in("id",dotPlanIds).eq("active",true):{data:[],error:null};
+  if(dotPlans.error)throw dotPlans.error;
+  const activeDotPlans=new Set((dotPlans.data||[]).map(x=>x.id));
     for(const m of members.data||[]){const o=orgMap.get(m.organization_id);if(!o)continue;
-   for(const pa of dotGrants.filter(p=>p.organization_id===o.id&&dotSubMap.get(p.subscription_id)?.tenant_id===p.tenant_id)){
+   for(const pa of dotGrants.filter(p=>p.organization_id===o.id&&dotSubMap.get(p.subscription_id)?.tenant_id===p.tenant_id&&activeDotPlans.has(dotSubMap.get(p.subscription_id)?.plan_id))){
     add({portal_code:pa.portal_code,business_unit:classify(pa.portal_code),organization_id:o.id,organization_name:name(o),membership_id:m.id,subscription_id:pa.subscription_id,role_code:m.membership_role,access_source:"organization_portal_access",verification:"required"});
    }
   }
