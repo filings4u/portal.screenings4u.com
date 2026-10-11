@@ -90,6 +90,7 @@ Deno.serve(async(req:Request)=>{
     }
     const validQ=desired.length?await db.from("workforce_employees").select("id").eq("employer_id",employer.id).in("id",desired):{data:[],error:null};
     if(validQ.error)throw validQ.error;const valid=new Set((validQ.data||[]).map((v:any)=>v.id));
+    if(valid.size!==desired.length)return J({error:"One or more selected employees do not belong to this employer."},403);
     const currentQ=await db.from("workforce_employee_programs").select("*").eq("program_id",saved.id);
     if(currentQ.error)throw currentQ.error;
     const currentBy=new Map((currentQ.data||[]).map((v:any)=>[v.employee_id,v]));
@@ -114,6 +115,7 @@ Deno.serve(async(req:Request)=>{
     const now=new Date().toISOString();
     const p=await db.from("workforce_programs").update({status:"archived",archived_at:now,updated_at:now}).eq("id",id).eq("employer_id",employer.id).eq("program_type","NON_DOT").select("id").maybeSingle();
     if(p.error)throw p.error;
+    if(!p.data)return J({error:"Program not found for selected employer."},404);
     const e=await db.from("workforce_employee_programs").update({status:"ended",end_date:now.slice(0,10),updated_at:now}).eq("program_id",id).eq("status","active");
     if(e.error)throw e.error;return J({ok:true,id});
   }
