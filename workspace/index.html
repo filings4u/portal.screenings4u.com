@@ -64,7 +64,8 @@ async function init(){
  try{
   const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),12000);
   let response;try{response=await fetch(ROOT+'/functions/v1/unified-customer-workspaces',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json',Authorization:'Bearer '+current.access_token},body:'{}',signal:controller.signal})}finally{clearTimeout(timer)}
-     if(!response.ok)throw Error(response.status===401?'Session expired':'Workspace service unavailable');
+     if(response.status===404){response=await fetch(ROOT+'/functions/v1/workforce-workspaces',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json',Authorization:'Bearer '+current.access_token},body:'{}'});if(!response.ok)throw Error('Account discovery unavailable');const legacy=await response.json();const eligible=new Set(['ctpa_dot','ctpa_employer_dot','employer_dot','owner_operator']);const workspaces=(legacy.workspaces||[]).filter(w=>eligible.has(w.portal_code)&&w.organization_id&&w.membership_id&&w.subscription_id&&!w.subscription_listing_only).map(w=>({...w,business_unit:'dot'}));response={ok:true,json:async()=>({ok:true,workspaces})};}
+   if(!response.ok)throw Error(response.status===401?'Session expired':'Workspace service unavailable');
    const result=await response.json();if(!result.ok||!Array.isArray(result.workspaces))throw Error('Could not retrieve workspaces');
   if(session!==current)return;
   const dotWorkspaces=result.workspaces.filter(w=>w&&typeof w.portal_code==='string');
