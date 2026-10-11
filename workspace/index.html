@@ -84,6 +84,12 @@ async function init(){
   text($('count'),workspaces.length+' authorized workspace'+(workspaces.length===1?'':'s'));
   if(!workspaces.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No authorized workspaces were returned. Contact your account administrator if you expect more access.';container.append(empty);return}
   const titles=new Map([...units,['other','Other authorized services']]);
+  function showBusinessTypes(){
+   container.replaceChildren();
+   text($('count'),workspaces.length+' authorized workspace'+(workspaces.length===1?'':'s'));
+   renderBusinessTypes();
+  }
+  function renderBusinessTypes(){
   for(const [unit,entries] of groups){
    if(!entries.length)continue;
    const tile=document.createElement('button');tile.type='button';tile.className='org-row business-choice';
@@ -98,7 +104,7 @@ async function init(){
     container.replaceChildren();
     const back=document.createElement('button');back.type='button';back.className='back';back.textContent='← All business types';
     back.style.cssText='grid-column:1/-1;text-align:left;padding:18px 25px;border-bottom:1px solid #d9e4f1';
-    back.onclick=()=>init();container.append(back);
+    back.onclick=showBusinessTypes;container.append(back);
     for(const w of entries){
      const type=types.find(t=>t.code===w.portal_code)||{code:w.portal_code,label:titles.get(unit)||unit,note:'Authorized account'};
      const mock={requires_workspace_selection:true,workspaces:[w],organization_name:w.organization_name,branding:w.branding,organization:w.organization};
@@ -109,6 +115,8 @@ async function init(){
    };
    container.append(tile);
   }
+  }
+  renderBusinessTypes();
  }catch(e){
   if(session!==current)return;
   container.replaceChildren();text($('count'),'Unable to load');
