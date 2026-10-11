@@ -7,8 +7,9 @@
       "business_unit": "dot",
       "repository": "ctpa-dot",
       "session_function": "ctpa-dot-session",
-      "connection_status": "inventory_only",
-      "customer_workspace": true
+      "connection_status": "read_only_adapter_source",
+      "customer_workspace": true,
+      "notes": "Main CTPA DOT session and actions adapter in portal-shell.js; not staged or browser-tested."
     },
     {
       "domain": "ctpa-employer-dot.screenings4u.com",
