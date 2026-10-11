@@ -16,8 +16,8 @@ Deno.serve(async req=>{
   const [members,workforceMembers,testing,lms,assignments]=await Promise.all([
    db.from("organization_memberships").select("id,organization_id,membership_role").eq("user_id",uid).eq("status","active"),
    db.from("workforce_memberships").select("id,organization_id,tenant_id,role_id").eq("user_id",uid).eq("status","active"),
-   db.from("testing_customer_portal_access").select("id,status").eq("user_id",uid).in("status",["active","enabled"]),
-   db.from("lms_enrollments").select("id,course_id,status").eq("user_id",uid).in("status",["active","completed"]),
+   db.from("testing_customer_portal_access").select("id,status").eq("user_id",uid).in("status",["active","enabled"]).is("revoked_at",null),
+   db.from("lms_enrollments").select("id,course_id,status,expires_at").eq("user_id",uid).in("status",["active","completed"]),
    db.from("workforce_portal_user_access").select("id,organization_id,tenant_id,portal_code,access_level").eq("user_id",uid).eq("enabled",true).is("revoked_at",null)
   ]);
   for(const r of [members,workforceMembers,testing,lms,assignments])if(r.error)throw r.error;
@@ -96,7 +96,7 @@ Deno.serve(async req=>{
    }
   }
   for(const x of testing.data||[])add({portal_code:"testing_customer",business_unit:"testing",organization_id:null,organization_name:"Screenings4u Testing",assignment_id:x.id,role_code:"customer",access_source:"testing_customer_portal_access",verification:"required"});
-  for(const x of lms.data||[])add({portal_code:"training_learner",business_unit:"training",organization_id:null,organization_name:"Screenings4u Learning Center",assignment_id:x.id,course_id:x.course_id,role_code:"learner",access_source:"lms_enrollments",verification:"required"});
+  for(const x of (lms.data||[]).filter(x=>!x.expires_at||new Date(x.expires_at).getTime()>Date.now()))add({portal_code:"training_learner",business_unit:"training",organization_id:null,organization_name:"Screenings4u Learning Center",assignment_id:x.id,course_id:x.course_id,role_code:"learner",access_source:"lms_enrollments",verification:"required"});
   return response({ok:true,workspaces});
  }catch(e){console.error("unified-customer-workspaces",e);return response({ok:false,error:"Unable to load accounts"},500)}
 });
