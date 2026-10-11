@@ -14,7 +14,7 @@ const mq=await membershipQuery.order("is_primary",{ascending:false});if(mq.error
 if(pa.data?.subscription_id){
   sq=await db.from("workforce_subscriptions").select("*").eq("id",pa.data.subscription_id).in("status",ACTIVE).maybeSingle();
 }
-if(!sq?.data){
+if(!exact&&!sq?.data){
   if(portalCode==="ctpa_workforce")sq=await db.from("workforce_subscriptions").select("*").eq("ctpa_id",ctpa.id).in("status",ACTIVE).order("created_at",{ascending:false}).limit(1).maybeSingle();
   else{
     sq=await db.from("workforce_subscriptions").select("*").eq("employer_id",employer.id).in("status",ACTIVE).order("created_at",{ascending:false}).limit(1).maybeSingle();
