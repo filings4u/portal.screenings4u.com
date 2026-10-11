@@ -52,3 +52,10 @@ No production systems are modified by this file. No Phase 1 completion claim is 
 - Discovery now refuses to emit public/management portal codes or unverified sponsored NON-DOT variants, even if a database grant exists. This protects the customer-facing selector from accidentally showing administrative applications.
 - Syntax-only validation passed for portal-shell.js, portal-module-manifest.js and workspace/index.html JavaScript.
 - Full TypeScript compilation, authenticated integration testing, staging deployments, remaining role mappings, operational modules and real browser checks are still outstanding. Do not close Phase 1 or merge into the deployment branch.
+
+
+## Repeatable code validation gate
+- GitHub Actions workflow `.github/workflows/phase1-validation.yml` has been committed. It checks shared portal JavaScript, inline scripts, registries, and every draft Supabase Edge Function via `deno check`.
+- At the time this gate was added, no Actions workflow run had been returned for the branch. Therefore **the code validation gate has not passed yet**.
+- No distinct Supabase staging environment has been identified for this portal; the connected `screenings4u Enterprise` project is production. Do not deploy draft functions there to simulate a staging test.
+- Phase 1 may only be marked complete after CI passes, a protected staging backend is available, authenticated multi-tenant role/subscription tests pass, and outstanding portal variants/modules are verified. Do not delete or rewire branches while this gate is open.
