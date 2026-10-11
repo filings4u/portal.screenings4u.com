@@ -233,9 +233,9 @@
       "business_unit": "nondot",
       "repository": "employer-non-dot",
       "session_function": "nondot-workforce-session-context",
-      "connection_status": "inventory_only",
+      "connection_status": "read_only_adapter_source",
       "customer_workspace": true,
-      "notes": "Existing workforce portal code or legacy host needs account-scoped session authorization. No unified operational adapter yet."
+      "notes": "Exact-identity NON-DOT employer overview source and shell adapter committed; staging/deployment and runtime validation pending."
     },
     {
       "domain": "employee-non-dot.screenings4u.com",
