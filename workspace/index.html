@@ -73,7 +73,7 @@ async function init(){
   const unique=new Map();
   for(const w of raw){
    const unit=w.business_unit||'other';
-   const key=unit==='training'&&w.course_id?'training:'+w.course_id:[w.portal_code,w.organization_id||'',w.subscription_id||'',w.membership_id||'',w.assignment_id||'',w.employee_id||''].join('|');
+   const key=unit==='training'?'training:learner':[w.portal_code,w.organization_id||'',w.subscription_id||'',w.membership_id||'',w.assignment_id||'',w.employee_id||''].join('|');
    if(!unique.has(key))unique.set(key,w);
   }
   const workspaces=[...unique.values()];
@@ -90,10 +90,11 @@ async function init(){
    const info=document.createElement('span');info.className='org-info';
    const title=document.createElement('div');title.className='org-title';text(title,titles.get(unit)||unit);
    const desc=document.createElement('div');desc.className='org-sub';
-   text(desc,entries.length+' authorized '+(entries.length===1?'account or subscription':'accounts or subscriptions')+' · Select to choose');
+   text(desc,unit==='training'?'Your enrolled courses will appear inside Learning Center':entries.length+' authorized '+(entries.length===1?'account or subscription':'accounts or subscriptions')+' · Select to choose');
    info.append(title,desc);tile.append(info);
    const arrow=document.createElement('span');arrow.className='arrow';text(arrow,'→');tile.append(arrow);
    tile.onclick=()=>{
+    if(unit==='training'&&entries.length===1){const w=entries[0];const type=types.find(t=>t.code===w.portal_code)||{code:w.portal_code,label:'Learning Center'};const temp=document.createElement('div');addResult(type,{requires_workspace_selection:true,workspaces:[w]},temp);temp.querySelector('button')?.click();return;}
     container.replaceChildren();
     const back=document.createElement('button');back.type='button';back.className='back';back.textContent='← All business types';
     back.style.cssText='grid-column:1/-1;text-align:left;padding:18px 25px;border-bottom:1px solid #d9e4f1';
