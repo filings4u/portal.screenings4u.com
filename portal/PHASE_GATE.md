@@ -84,3 +84,6 @@ No production systems are modified by this file. No Phase 1 completion claim is 
 - Cross-business entry discovery now checks each individual active membership before skipping an already discovered portal. Previously a workspace for one organization member could prevent the same organization portal entry being listed for a second member.
 - The opposite-business card remains entry-only and must revalidate the signed-in member, originating active C/TPA record, organization and correct role server-side before opening. UI discovery is not sufficient authorization.
 - Backend provisioning, subscription-feature gating, and staging account-isolation tests remain open. No automatic sponsor grant or production access was created.
+
+## Consolidation decision
+- See `portal/EXISTING_FUNCTION_REUSE_AUDIT.md` for the deployed `workforce-workspaces` contract audit. Existing function emits staff and prefixed portal codes; **it is not a drop-in replacement** for the new customer-only selector. Do not deploy nine new draft functions by default. Preserve deployed legacy callers and test a versioned customer-only contract first.
