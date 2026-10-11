@@ -11,8 +11,8 @@ Deno.serve(async req=>{
   const bearer=(req.headers.get("Authorization")||"").replace(/^Bearer\s+/i,"");
   if(!secret||bearer!==secret)return json({ok:false,error:"Internal authorization required"},403);
   const b=await req.json().catch(()=>({}));
-  const event=String(b.event_type||""),org=String(b.organization_id||""),subject=String(b.subject_user_id||""),portal=String(b.portal_code||"");
-  if(!allowed.has(event)||!uuid.test(org)||!uuid.test(subject)||!portal)return json({ok:false,error:"Unsupported event or missing context"},400);
+  const event=String(b.event_type||""),org=String(b.organization_id||""),subject=String(b.subject_user_id||""),portal=String(b.portal_code||""),subscription=String(b.subscription_id||"");
+  if(!allowed.has(event)||!uuid.test(org)||!uuid.test(subject)||!portal||!uuid.test(subscription))return json({ok:false,error:"Unsupported event or missing context"},400);
   const url=Deno.env.get("SUPABASE_URL")||"";
   const db=createClient(url,secret,{auth:{persistSession:false,autoRefreshToken:false}});
   const o=await db.from("organizations").select("id,status").eq("id",org).eq("status","active").maybeSingle();
@@ -37,10 +37,10 @@ Deno.serve(async req=>{
   }
   // Portal availability is a separate grant. Do not include administrators without it.
   const accessTable=dot?"organization_portal_access":"workforce_portal_access";
-  const grant=await db.from(accessTable).select("id").eq("organization_id",org).eq("portal_code",portal).eq("enabled",true).limit(1);
+  const grant=await db.from(accessTable).select("id,subscription_id").eq("organization_id",org).eq("portal_code",portal).eq("subscription_id",subscription).eq("enabled",true).limit(1);
   if(grant.error)throw grant.error;if(!(grant.data||[]).length)return json({ok:false,error:"Portal grant not active"},403);
-  const audience=[...new Set([subject,...admins])];
+  // Initial resolver cannot safely infer the affected resource or all administrator subscription grants.\n  // Restrict to verified subject only until role-resource checks are implemented.\n  const audience=[subject];
   // IDs only; trusted dispatcher must independently re-check event resource permission and recipient delivery preferences.
-  return json({ok:true,event_type:event,organization_id:org,portal_code:portal,recipients:audience.map(id=>({user_id:id,audiences:[...(id===subject?["customer"]:[]),...(admins.includes(id)?["organization_admin"]:[])]})),delivery_enabled:false});
+  return json({ok:true,event_type:event,organization_id:org,portal_code:portal,subscription_id:subscription,recipients:audience.map(id=>({user_id:id,audiences:[...(id===subject?["customer"]:[]),...(admins.includes(id)?["organization_admin"]:[])]})),delivery_enabled:false});
  }catch(e){console.error("email-audience-resolution",e);return json({ok:false,error:"Unable to resolve notification audience"},500)}
 });
