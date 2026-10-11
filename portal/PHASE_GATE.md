@@ -59,3 +59,12 @@ No production systems are modified by this file. No Phase 1 completion claim is 
 - At the time this gate was added, no Actions workflow run had been returned for the branch. Therefore **the code validation gate has not passed yet**.
 - No distinct Supabase staging environment has been identified for this portal; the connected `screenings4u Enterprise` project is production. Do not deploy draft functions there to simulate a staging test.
 - Phase 1 may only be marked complete after CI passes, a protected staging backend is available, authenticated multi-tenant role/subscription tests pass, and outstanding portal variants/modules are verified. Do not delete or rewire branches while this gate is open.
+
+
+## Corrected C/TPA entitlement model — approved user requirement
+- A C/TPA automatically has **both DOT and NON-DOT portal entry points** from its verified C/TPA account status and active user membership, even without separate purchased portal-access grants for each side.
+- Subscription status and plan features determine **which modules and operations** are enabled inside each workspace; lack of a subscription is not itself a reason to hide either C/TPA entry point.
+- Access to a C/TPA's sponsored employers, their employees, or sponsored owner-operators is **not** implied by membership alone; explicit delegated grants, relationship and person/role scoping are still required.
+- A direct employer administers its own customer accounts. An owner-operator may have both driver and employer permissions, determined independently.
+- Current unified discovery, NON-DOT account validator and C/TPA read-only adapters still couple C/TPA entry to subscription_id and must be refactored consistently before this requirement is operational.
+- Do not relax the backend subscription checks for module actions; return both portals with safe, limited navigation when no matching entitlement is present.
