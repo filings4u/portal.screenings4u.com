@@ -28,7 +28,7 @@
       "session_function": "employee-dot-session",
       "connection_status": "inventory_only",
       "customer_workspace": true,
-      "notes": "Legacy hostname does not map to a distinct confirmed C/TPA employee code; employee_dot service exists. Requires entitlement/identity resolution before enabling."
+      "notes": "Backend employee_dot exists but not a distinct CTPA employee role; require separate assignment entitlement before enabling."
     },
     {
       "domain": "ctpa-driver-dot.screenings4u.com",
@@ -62,33 +62,33 @@
     },
     {
       "domain": "fmcsa-employer-dot.screenings4u.com",
-      "portal_code": "fmcsa_employer_dot",
+      "portal_code": "employer_dot",
       "business_unit": "dot",
       "repository": "employer-fmcsa-dot",
-      "session_function": "fmcsa-dot-session",
+      "session_function": "employer-dot-session",
       "connection_status": "inventory_only",
       "customer_workspace": true,
-      "notes": "FMCSA legacy host needs exact backend role/portal-code mapping; do not substitute fmcsa_dot, driver_dot or employee_dot without verified identity context."
+      "notes": "Confirmed legacy repository employer-fmcsa-dot/assets/js/config.js uses employer_dot. FMCSA geographic/agency label is host, not backend portal code."
     },
     {
       "domain": "fmcsa-driver-dot.screenings4u.com",
-      "portal_code": "fmcsa_driver_dot",
+      "portal_code": "driver_dot",
       "business_unit": "dot",
       "repository": "driver-fmcsa-dot",
       "session_function": "driver-dot-session",
       "connection_status": "inventory_only",
       "customer_workspace": true,
-      "notes": "FMCSA legacy host needs exact backend role/portal-code mapping; do not substitute fmcsa_dot, driver_dot or employee_dot without verified identity context."
+      "notes": "Confirmed driver-fmcsa-dot/assets/js/config.js uses driver_dot; individual identity and enrollment still require verification."
     },
     {
       "domain": "fmcsa-employee-dot.screenings4u.com",
-      "portal_code": "fmcsa_employee_dot",
+      "portal_code": "employee_dot",
       "business_unit": "dot",
       "repository": "employee-dot",
       "session_function": "employee-dot-session",
       "connection_status": "inventory_only",
       "customer_workspace": true,
-      "notes": "FMCSA legacy host needs exact backend role/portal-code mapping; do not substitute fmcsa_dot, driver_dot or employee_dot without verified identity context."
+      "notes": "Mapped to existing general DOT Employee repository configuration, not verified as separate fmcsa-employee-dot deployment. Confirm hostname ownership."
     },
     {
       "domain": "owner-operator.screenings4u.com",
