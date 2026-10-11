@@ -40,7 +40,7 @@ function addResult(type,result){
   const tag=document.createElement('span');tag.className='pill';text(tag,'Open workspace');
   const arrow=document.createElement('span');arrow.className='arrow';text(arrow,'→');
   el.append(av,info,tag,arrow);
-  el.onclick=async()=>{
+  el.onclick=async()=>{if(!entry){openWorkspace(type,result);return;}const key=[entry.portal_code||type.code,entry.organization_id||'',entry.subscription_id||'',entry.membership_id||'',entry.assignment_id||''].join('|');try{sessionStorage.setItem('s4u_selected_workspace_v1',JSON.stringify({user_id:session.user.id,workspace_key:key,selected_at:Date.now()}));location.assign('/portal/')}catch{alert('Unable to open account. Please enable session storage.')}return;
    if(type.code.includes(':')||!types.some(t=>t.code===type.code)&&!['fmcsa_dot','faa_dot','fra_dot','fta_dot','phmsa_dot','uscg_dot'].includes(type.code)){openWorkspace(type,result,true);$('chooser').classList.add('hidden');text($('detail-name'),name);text($('detail-type'),type.label);text($('detail-status'),'This account is listed, but its workspace integration has not yet been enabled. Your existing permissions remain unchanged.');$('verified').classList.add('hidden');return}
    openWorkspace(type,result,!!entry);
    if(!entry)return;
