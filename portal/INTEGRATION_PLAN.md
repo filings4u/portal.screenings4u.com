@@ -25,3 +25,11 @@ The user-provided portal registry is in `portal-integration-registry.json`. It i
 - Multi-account selection, branding, subscription gating, real module integration, full visual parity, and end-to-end tests are not complete.
 
 Sequence: **connect/verify every requested customer portal** first; only then complete the cross-cutting operational phase (authorization hardening, dynamic branding, operational modules, exact design, staging testing). Security checks above are mandatory prerequisites during connection work, not postponed.
+
+## NON-DOT verification findings (October 2026)
+- `employer-non-dot` application config uses `employer_workforce`; `employee-workforce` uses `employee_workforce`; `driver-workforce` uses `driver_workforce`.
+- `nondot-workforce-session-context` currently maps requested codes containing `employer` to `employer_workforce`, and all other requested codes to `ctpa_workforce`. It selects the first matching membership. Therefore it is not a valid authorization mechanism for an arbitrary selected employee/driver account.
+- `nondot-employer-portal` forwards to `nondot-workforce-employer-portal`, which forwards to that same session-context function. These wrappers do not provide independent account selection.
+- A new, separate account-scoped verification endpoint is required. Accept explicit selected membership/subscription/organization, authenticate signed-in user, validate active exact memberships, portal grant, correct C/TPA/employer/employee/driver relation and active relevant plan. Do not return any business data on mismatch.
+- Do not treat the public NON-DOT site or internal NON-DOT management portal as customer workspaces.
+- The source-only backend write attempted in this work session was blocked by a safety check; no new NON-DOT backend function was created or deployed.
