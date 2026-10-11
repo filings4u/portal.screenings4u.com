@@ -29,3 +29,8 @@ No production systems are modified by this file. No Phase 1 completion claim is 
 - `ctpa_employer_workforce`, `ctpa_employee_workforce`, `ctpa_driver_workforce` do not currently appear in the inspected `workforce_portal_access` grant rows, and no corresponding legacy app repositories were confirmed. Their requested hostnames are requirements, not evidence of deployed, authorized workspaces.
 - Keep those variants unavailable in unified discovery until the identity model, deployed app, explicit subscription and individual account access can be verified. Do not alias them to C/TPA admin privileges.
 - The branded email event catalog and shared renderer already exist, but recipient/resource checks, triggers, transport, logo verification and safe staged testing remain unfinished. Complete these **after Phase 1**, before declaring Phase 2 finished; do not send customer notifications now.
+
+## Discovery entitlement correction (2026-10-10)
+- NON-DOT organization discovery now requires same-tenant membership/grant and an active/trialing subscription with active plan. Explicit selected-account validators remain mandatory at entry and each data API.
+- Discovery must still be tested against two organizations, expired subscriptions, revoked grants, C/TPA sponsorship, employee/driver personal identities, and plan-feature limits. DOT organization grants and testing/learning identity paths also need targeted review.
+- Changes were committed to a source branch, NOT deployed. Phase 1 remains open; keep live preview branch cutover and deletion deferred until staging verification succeeds.
