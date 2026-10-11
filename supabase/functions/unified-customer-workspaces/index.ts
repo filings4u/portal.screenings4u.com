@@ -33,8 +33,10 @@ Deno.serve(async req=>{
   const orgMap=new Map((orgs.data||[]).filter(o=>o.status==="active").map(o=>[o.id,o]));
   const roleMap=new Map((roles.data||[]).map(r=>[r.id,r]));
   const workspaces:any[]=[],seen=new Set<string>();
-  const add=(w:any)=>{const key=[w.portal_code,w.organization_id||"",w.subscription_id||"",w.membership_id||"",w.assignment_id||"",w.employee_id||""].join("|");if(!seen.has(key)){seen.add(key);workspaces.push(w)}};
+  const add=(w:any)=>{if(!customerCodes.has(w.portal_code))return;const key=[w.portal_code,w.organization_id||"",w.subscription_id||"",w.membership_id||"",w.assignment_id||"",w.employee_id||""].join("|");if(!seen.has(key)){seen.add(key);workspaces.push(w)}};
   const classify=(code:string)=>code.includes("workforce")||code.includes("non_dot")||code.includes("nondot")?"nondot":code.includes("dot")||code==="owner_operator"?"dot":code.includes("train")||code.includes("lms")?"training":code.includes("test")||code.includes("customer")?"testing":"other";
+  // Explicit customer-only allowlist. Management/public portal grants must never appear in customer discovery.
+  const customerCodes=new Set(["ctpa_dot","ctpa_employer_dot","ctpa_employee_dot","ctpa_driver_dot","faa_employer_dot","faa_employee_dot","employer_dot","driver_dot","employee_dot","owner_operator","fra_employer_dot","fra_employee_dot","fta_employer_dot","fta_employee_dot","phmsa_employer_dot","phmsa_employee_dot","uscg_employer_dot","uscg_employee_dot","ctpa_workforce","employer_workforce","employee_workforce","driver_workforce","training_learner","testing_customer"]);
   const name=(o:any)=>o?.dba_name||o?.legal_name||"Organization";
   const dotGrants=(portalAccess.data||[]).filter(g=>g.subscription_id&&g.tenant_id);
   const dotSubscriptionIds=[...new Set(dotGrants.map(g=>g.subscription_id))];
