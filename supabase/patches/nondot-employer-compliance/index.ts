@@ -29,7 +29,7 @@ Deno.serve(async(req:Request)=>{
 
   const [ordersQ,resultsQ,casesQ,programsQ,poolsQ,employeesQ]=await Promise.all([
     db.from("workforce_testing_orders").select("*").eq("employer_id",employer.id).eq("program_type","NON_DOT").order("created_at",{ascending:false}),
-    db.from("workforce_test_results").select("*,workforce_testing_orders!inner(id,employer_id,employee_id,order_number,status,reason,test_type,created_at,completed_at)").eq("workforce_testing_orders.employer_id",employer.id).order("created_at",{ascending:false}),
+    db.from("workforce_test_results").select("*,workforce_testing_orders!workforce_test_results_order_fk!inner(id,employer_id,employee_id,order_number,status,reason,test_type,created_at,completed_at)").eq("workforce_testing_orders.employer_id",employer.id).order("created_at",{ascending:false}),
     db.from("workforce_compliance_cases").select("*").eq("employer_id",employer.id).eq("business_surface","workforce").order("opened_at",{ascending:false}),
     db.from("workforce_programs").select("*").eq("employer_id",employer.id).eq("program_type","NON_DOT").order("created_at",{ascending:false}),
     db.from("workforce_random_pools").select("*").eq("employer_id",employer.id).eq("program_type","NON_DOT").order("created_at",{ascending:false}),
