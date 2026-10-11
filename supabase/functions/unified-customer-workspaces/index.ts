@@ -112,12 +112,12 @@ Deno.serve(async req=>{
   const activeNondotCtpas=new Map((ctpaNondotQ.data||[]).map(x=>[x.organization_id,x]));
   for(const m of activeDotMembers){
     const dot=activeDotCtpas.get(m.organization_id),other=activeNondotCtpas.get(m.organization_id),o=orgMap.get(m.organization_id);
-    if(!dot||!o||workspaces.some(w=>w.portal_code==="ctpa_workforce"&&w.organization_id===o.id))continue;
+    if(!dot||!o||workspaces.some(w=>w.portal_code==="ctpa_workforce"&&w.organization_id===o.id&&w.membership_id===m.id))continue;
     add({portal_code:"ctpa_workforce",business_unit:"nondot",organization_id:o.id,organization_name:name(o),membership_id:m.id,subscription_id:null,ctpa_id:other?.id||null,role_code:m.membership_role,access_source:"cross_business_ctpa_entry",verification:"required",entry_only:true,setup_required:!other});
   }
   for(const m of activeNondotMembers){
     const nondot=activeNondotCtpas.get(m.organization_id),other=activeDotCtpas.get(m.organization_id),o=orgMap.get(m.organization_id);
-    if(!nondot||!o||workspaces.some(w=>w.portal_code==="ctpa_dot"&&w.organization_id===o.id))continue;
+    if(!nondot||!o||workspaces.some(w=>w.portal_code==="ctpa_dot"&&w.organization_id===o.id&&w.membership_id===m.id))continue;
     add({portal_code:"ctpa_dot",business_unit:"dot",organization_id:o.id,organization_name:name(o),membership_id:m.id,subscription_id:null,ctpa_id:other?.id||null,role_code:roleMap.get(m.role_id)?.code||"member",access_source:"cross_business_ctpa_entry",verification:"required",entry_only:true,setup_required:!other});
   }
   // Self-service NON-DOT cards require a real employee identity AND matching active subscription.
