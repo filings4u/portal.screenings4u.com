@@ -15,7 +15,7 @@ Deno.serve(async req=>{
   const uid=identity.user.id;
   const [members,workforceMembers,testing,lms,assignments]=await Promise.all([
    db.from("organization_memberships").select("id,organization_id,membership_role").eq("user_id",uid).eq("status","active"),
-   db.from("workforce_memberships").select("id,organization_id,role_id").eq("user_id",uid).eq("status","active"),
+   db.from("workforce_memberships").select("id,organization_id,tenant_id,role_id").eq("user_id",uid).eq("status","active"),
    db.from("testing_customer_portal_access").select("id,status").eq("user_id",uid).in("status",["active","enabled"]),
    db.from("lms_enrollments").select("id,course_id,status").eq("user_id",uid).in("status",["active","completed"]),
    db.from("workforce_portal_user_access").select("id,organization_id,tenant_id,portal_code,access_level").eq("user_id",uid).eq("enabled",true).is("revoked_at",null)
@@ -25,7 +25,7 @@ Deno.serve(async req=>{
   const [orgs,portalAccess,workforceAccess,roles,relationships]=await Promise.all([
    orgIds.length?db.from("organizations").select("id,legal_name,dba_name,status,metadata").in("id",orgIds):Promise.resolve({data:[],error:null}),
    orgIds.length?db.from("organization_portal_access").select("organization_id,portal_code,subscription_id,enabled").in("organization_id",orgIds).eq("enabled",true):Promise.resolve({data:[],error:null}),
-   orgIds.length?db.from("workforce_portal_access").select("organization_id,portal_code,subscription_id,enabled").in("organization_id",orgIds).eq("enabled",true):Promise.resolve({data:[],error:null}),
+   orgIds.length?db.from("workforce_portal_access").select("organization_id,tenant_id,portal_code,subscription_id,enabled").in("organization_id",orgIds).eq("enabled",true):Promise.resolve({data:[],error:null}),
    (workforceMembers.data||[]).length?db.from("workforce_roles").select("id,code,name").in("id",[...new Set((workforceMembers.data||[]).map(m=>m.role_id).filter(Boolean))]):Promise.resolve({data:[],error:null}),
    orgIds.length?db.from("organization_business_relationships").select("organization_id,business_unit_code,status").in("organization_id",orgIds).eq("status","active"):Promise.resolve({data:[],error:null})
   ]);
@@ -43,9 +43,29 @@ Deno.serve(async req=>{
   }
   for(const m of workforceMembers.data||[]){const o=orgMap.get(m.organization_id);if(!o)continue;
    const role=roleMap.get(m.role_id);
-   for(const pa of (workforceAccess.data||[]).filter(p=>p.organization_id===o.id&&Boolean(p.subscription_id)&&["ctpa_workforce","employer_workforce"].includes(p.portal_code))){
+   for(const pa of (workforceAccess.data||[]).filter(p=>p.organization_id===o.id&&p.tenant_id===m.tenant_id&&Boolean(p.subscription_id)&&["ctpa_workforce","employer_workforce"].includes(p.portal_code))){
     add({portal_code:pa.portal_code,business_unit:classify(pa.portal_code),organization_id:o.id,organization_name:name(o),membership_id:m.id,subscription_id:pa.subscription_id,role_code:role?.code||"member",access_source:"workforce_portal_access",verification:"required"});
    }
+  }
+  // Only expose NON-DOT organization grants whose subscription is active and belongs to the same tenant.
+  // This is a discovery filter, not a replacement for the per-workspace access verifier.
+  const orgWorkspaces=workspaces.filter(w=>w.business_unit==="nondot"&&w.access_source==="workforce_portal_access");
+  if(orgWorkspaces.length){
+    const subIds=[...new Set(orgWorkspaces.map(w=>w.subscription_id).filter(Boolean))];
+    const sq=await db.from("workforce_subscriptions").select("id,tenant_id,plan_id,status").in("id",subIds).in("status",["active","trial","trialing"]);
+    if(sq.error)throw sq.error;
+    const subMap=new Map((sq.data||[]).map(x=>[x.id,x]));
+    const pids=[...new Set((sq.data||[]).map(x=>x.plan_id).filter(Boolean))];
+    const active=pids.length?await db.from("workforce_plans").select("id").in("id",pids).eq("active",true):{data:[],error:null};
+    if(active.error)throw active.error;
+    const plans=new Set((active.data||[]).map(x=>x.id));
+    const tenantOf=new Map((workforceMembers.data||[]).map(m=>[m.id,m.tenant_id]));
+    for(let i=workspaces.length-1;i>=0;i--){
+      const w=workspaces[i];
+      if(w.business_unit!=="nondot"||w.access_source!=="workforce_portal_access")continue;
+      const sub=subMap.get(w.subscription_id);
+      if(!sub||sub.tenant_id!==tenantOf.get(w.membership_id)||!plans.has(sub.plan_id))workspaces.splice(i,1);
+    }
   }
   // Self-service NON-DOT cards require a real employee identity AND matching active subscription.
   const selfCodes=["employee_workforce","driver_workforce"];
