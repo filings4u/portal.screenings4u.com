@@ -19,4 +19,11 @@ for name, required in FILES.items():
     if missing:
         raise SystemExit(f"{target}: missing structural checks {missing}")
     print(f"PASS: {name} has required selected-account scope markers")
+# Prevent a foreign program ID from triggering enrollment changes after a no-op archive.
+programs = (ROOT / "nondot-employer-programs" / "index.ts").read_text()
+archive = programs.split('if(action==="archive"){', 1)[1]
+assert 'if(!p.data)return J({error:"Program not found for selected employer."},404);' in archive
+assert archive.index('if(!p.data)return J(') < archive.index('db.from("workforce_employee_programs").update(')
+assert 'if(valid.size!==desired.length)return J(' in programs
+print("PASS: employer program archive and enrollment scope regression guards")
 print("PASS: static NON-DOT authorization guard audit (runtime verification still required)")
