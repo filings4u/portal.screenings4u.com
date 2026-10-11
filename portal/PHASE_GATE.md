@@ -38,3 +38,8 @@ No production systems are modified by this file. No Phase 1 completion claim is 
 ## Testing Customer and LMS discovery correction
 - Discovery now excludes revoked Testing Customer portal-access rows and expired LMS enrollments. Account-specific services must independently confirm access and expiry at every request.
 - The filtering has not been validated through staged multi-user integration tests. Do not enable the live preview branch cutover yet.
+
+## DOT discovery entitlement safeguard (2026-10-10)
+- DOT organization portal grants now require a non-null subscription and tenant ID and an active/trialing matching subscription in that same tenant before being advertised by discovery.
+- This is a listing filter only. Individual membership roles, subscription plan features, employee/driver assignment and portal-specific session checks still require verification.
+- New Edge Function sources remain uncompiled, undeployed and untested in protected staging. Do not cut over production or retire branches yet.
