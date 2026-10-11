@@ -27,15 +27,15 @@ function addResult(type,result){
  const entries=result.requires_workspace_selection&&Array.isArray(result.workspaces)?result.workspaces:[null];
  for(const entry of entries){
   const name=entry?.organization?.dba_name||entry?.organization?.legal_name||entry?.organization_name||orgName(result);
-  const plan=entry?.plan_name||result.plan?.name||entry?.plan_code||result.plan?.code||'DOT program';
+  const plan=entry?.plan_name||result.plan?.name||entry?.plan_code||result.plan?.code||'Screenings4u account';
   const el=document.createElement('button');el.type='button';el.className='org-row';
   const av=document.createElement('span');av.className='avatar';
   const image=safeLogo(logoFor(entry))||safeLogo(logoFor(result));
   if(image){const img=document.createElement('img');img.src=image;img.alt=name+' logo';img.loading='lazy';img.decoding='async';img.onerror=()=>{av.replaceChildren();av.classList.add('no-logo')};av.append(img)}
   else av.classList.add('no-logo');
   const info=document.createElement('span');info.className='org-info';
-  const title=document.createElement('div');title.className='org-title';text(title,entry?.subscription_id&&plan!=='DOT program'?plan:name);
-  const sub=document.createElement('div');sub.className='org-sub';text(sub,entry?.subscription_id?name+' · '+type.label+(entry.subscription_listing_only?' · Portal connection pending':''):type.label+' · '+plan);
+  const title=document.createElement('div');title.className='org-title';text(title,entry?.subscription_id&&plan!=='Screenings4u account'?plan:name);
+  const sub=document.createElement('div');sub.className='org-sub';text(sub,entry?.subscription_id?name+' · '+type.label+(entry.subscription_listing_only?' · Verification pending':''):type.label+' · '+plan);
   info.append(title,sub);
   const tag=document.createElement('span');tag.className='pill';text(tag,'Open workspace');
   const arrow=document.createElement('span');arrow.className='arrow';text(arrow,'→');
@@ -66,15 +66,15 @@ async function init(){
  const loading=document.createElement('div');loading.className='loading';loading.textContent='Loading your organizations…';container.append(loading);
  try{
   const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),12000);
-  let response;try{response=await fetch(ROOT+'/functions/v1/workforce-workspaces',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json',Authorization:'Bearer '+current.access_token},body:'{}',signal:controller.signal})}finally{clearTimeout(timer)}
+  let response;try{response=await fetch(ROOT+'/functions/v1/unified-customer-workspaces',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json',Authorization:'Bearer '+current.access_token},body:'{}',signal:controller.signal})}finally{clearTimeout(timer)}
   if(!response.ok)throw Error(response.status===401?'Session expired':'Workspace service unavailable');
   const result=await response.json();if(!result.ok||!Array.isArray(result.workspaces))throw Error('Could not retrieve workspaces');
   if(session!==current)return;
-  const dotWorkspaces=result.workspaces;
+  const dotWorkspaces=result.workspaces.filter(w=>w&&typeof w.portal_code==='string');
   container.replaceChildren();text($('count'),dotWorkspaces.length+' account'+(dotWorkspaces.length===1?'':'s'));
   if(!dotWorkspaces.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='No authorized workspaces were returned. Contact your account administrator if you expect more access.';container.append(empty);return}
   for(const w of dotWorkspaces){
-   const type=types.find(t=>t.code===w.portal_code)||{code:w.portal_code,label:w.portal_code.replaceAll('_',' ').toUpperCase(),note:'Authorized account'};
+   const type=types.find(t=>t.code===w.portal_code)||{code:w.portal_code,label:({training:'Learning Center',testing:'Testing Services',nondot:'Workforce NON-DOT',dot:'Workforce DOT'})[w.business_unit]||w.portal_code.replaceAll('_',' ').toUpperCase(),note:'Authorized account'};
    const mock={requires_workspace_selection:true,workspaces:[w],organization_name:w.organization_name,branding:w.branding,organization:w.organization};
    addResult(type,mock);
   }
