@@ -6,6 +6,7 @@ const fields=["organization_id","membership_id","subscription_id"] as const;
 const supplied=fields.filter(k=>body[k]!==undefined&&body[k]!==null&&body[k]!=="");
 if(supplied.length>0&&supplied.length!==fields.length)return J({error:"All exact account selectors are required."},400);
 const exact=supplied.length===fields.length;
+if(exact&&!["ctpa_workforce","employer_workforce"].includes(raw))return J({error:"Unsupported exact-account portal code."},400);
 const validId=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 if(exact&&!fields.every(k=>typeof body[k]==="string"&&validId.test(body[k])))return J({error:"Invalid account selector."},400);
 let membershipQuery=db.from("workforce_memberships").select("*").eq("user_id",user.id).eq("status","active");
