@@ -44,12 +44,12 @@ Deno.serve(async req=>{
   if(dotSubs.error)throw dotSubs.error;
   const dotSubMap=new Map((dotSubs.data||[]).map(x=>[x.id,x]));
   const dotPlanIds=[...new Set((dotSubs.data||[]).map(x=>x.plan_id).filter(Boolean))];
-  const dotPlans=dotPlanIds.length?await db.from("plans").select("id").in("id",dotPlanIds).eq("active",true):{data:[],error:null};
+  const dotPlans=dotPlanIds.length?await db.from("plans").select("id,name,code").in("id",dotPlanIds).eq("active",true):{data:[],error:null};
   if(dotPlans.error)throw dotPlans.error;
-  const activeDotPlans=new Set((dotPlans.data||[]).map(x=>x.id));
+  const activeDotPlans=new Set((dotPlans.data||[]).map(x=>x.id));const dotPlanMap=new Map((dotPlans.data||[]).map(x=>[x.id,x]));
     for(const m of members.data||[]){const o=orgMap.get(m.organization_id);if(!o)continue;
    for(const pa of dotGrants.filter(p=>p.organization_id===o.id&&dotSubMap.get(p.subscription_id)?.tenant_id===p.tenant_id&&activeDotPlans.has(dotSubMap.get(p.subscription_id)?.plan_id))){
-    add({portal_code:pa.portal_code,business_unit:classify(pa.portal_code),organization_id:o.id,organization_name:name(o),membership_id:m.id,subscription_id:pa.subscription_id,role_code:m.membership_role,access_source:"organization_portal_access",verification:"required"});
+    add({portal_code:pa.portal_code,business_unit:classify(pa.portal_code),organization_id:o.id,organization_name:name(o),membership_id:m.id,subscription_id:pa.subscription_id,plan_name:dotPlanMap.get(dotSubMap.get(pa.subscription_id)?.plan_id)?.name||null,plan_code:dotPlanMap.get(dotSubMap.get(pa.subscription_id)?.plan_id)?.code||null,subscription_status:dotSubMap.get(pa.subscription_id)?.status||null,role_code:m.membership_role,access_source:"organization_portal_access",verification:"required"});
    }
   }
   for(const m of workforceMembers.data||[]){const o=orgMap.get(m.organization_id);if(!o)continue;
@@ -67,15 +67,15 @@ Deno.serve(async req=>{
     if(sq.error)throw sq.error;
     const subMap=new Map((sq.data||[]).map(x=>[x.id,x]));
     const pids=[...new Set((sq.data||[]).map(x=>x.plan_id).filter(Boolean))];
-    const active=pids.length?await db.from("workforce_plans").select("id").in("id",pids).eq("active",true):{data:[],error:null};
+    const active=pids.length?await db.from("workforce_plans").select("id,name,code").in("id",pids).eq("active",true):{data:[],error:null};
     if(active.error)throw active.error;
-    const plans=new Set((active.data||[]).map(x=>x.id));
+    const plans=new Set((active.data||[]).map(x=>x.id));const planMap=new Map((active.data||[]).map(x=>[x.id,x]));
     const tenantOf=new Map((workforceMembers.data||[]).map(m=>[m.id,m.tenant_id]));
     for(let i=workspaces.length-1;i>=0;i--){
       const w=workspaces[i];
       if(w.business_unit!=="nondot"||w.access_source!=="workforce_portal_access")continue;
       const sub=subMap.get(w.subscription_id);
-      if(!sub||sub.tenant_id!==tenantOf.get(w.membership_id)||!plans.has(sub.plan_id))workspaces.splice(i,1);
+      if(!sub||sub.tenant_id!==tenantOf.get(w.membership_id)||!plans.has(sub.plan_id))workspaces.splice(i,1);else {w.plan_name=planMap.get(sub.plan_id)?.name||null;w.plan_code=planMap.get(sub.plan_id)?.code||null;w.subscription_status=sub.status;}
     }
   }
   // C/TPA portal ENTRY is based on an active C/TPA record and signed-in membership,
