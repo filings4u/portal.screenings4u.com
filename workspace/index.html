@@ -43,7 +43,7 @@ function addResult(type,result){
   el.onclick=async()=>{
    if(!entry){openWorkspace(type,result);return}
    if(!entry.portal_code){alert('Account type is not configured.');return}
-   const key=[entry.portal_code,entry.organization_id||'',entry.subscription_id||'',entry.membership_id||'',entry.assignment_id||''].join('|');
+   const key=[entry.portal_code,entry.organization_id||'',entry.subscription_id||'',entry.membership_id||'',entry.assignment_id||'',entry.employee_id||''].join('|');
    try{
     const {data:{user},error}=await sb.auth.getUser();
     if(error||!user||user.id!==session?.user?.id)throw Error('Your session has expired. Sign in again.');
