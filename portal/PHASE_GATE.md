@@ -87,3 +87,6 @@ No production systems are modified by this file. No Phase 1 completion claim is 
 
 ## Consolidation decision
 - See `portal/EXISTING_FUNCTION_REUSE_AUDIT.md` for the deployed `workforce-workspaces` contract audit. Existing function emits staff and prefixed portal codes; **it is not a drop-in replacement** for the new customer-only selector. Do not deploy nine new draft functions by default. Preserve deployed legacy callers and test a versioned customer-only contract first.
+
+## Billing release blocker
+NON-DOT employer Billing must remain disabled in the unified frontend until its existing endpoint checks the exact selected membership, organization, tenant and subscription, and an authenticated multi-account test passes. Reuse the deployed `nondot-employer-billing` function; no duplicate function or database table. Invoice reads and payment operations must verify employer ownership independently. Do not deploy a replacement without rollback readiness.
