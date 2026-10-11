@@ -8,7 +8,7 @@ Deno.serve(async req=>{
  if(req.method!=="POST")return json({ok:false,error:"Method not allowed"},405);
  try{
   const secret=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")||"";
-  const bearer=(req.headers.get("Authorization")||"").replace(/^Bearer\\s+/i,"");
+  const bearer=(req.headers.get("Authorization")||"").replace(/^Bearer\s+/i,"");
   if(!secret||bearer!==secret)return json({ok:false,error:"Internal authorization required"},403);
   const b=await req.json().catch(()=>({}));
   const event=String(b.event_type||""),org=String(b.organization_id||""),subject=String(b.subject_user_id||""),portal=String(b.portal_code||"");
