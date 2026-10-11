@@ -34,7 +34,8 @@ Deno.serve(async req=>{
    if(m.error)throw m.error;if(!m.data)return J({ok:false,error:"Membership unavailable"},403);
    member=m.data;tenant=m.data.tenant_id;
    const table=portal==="ctpa_workforce"?"workforce_ctpas":"workforce_employers";
-   let q=db.from(table).select(portal==="ctpa_workforce"?"id,organization_id,tenant_id,status":"id,organization_id,tenant_id,status,ctpa_id,workforce_classification").eq("organization_id",org).eq("status","active");
+   // Query projections differ by table; the typed query builder cannot parse a conditional select string.
+   let q:any=db.from(table).select(portal==="ctpa_workforce"?"id,organization_id,tenant_id,status":"id,organization_id,tenant_id,status,ctpa_id,workforce_classification").eq("organization_id",org).eq("status","active");
    if(portal==="employer_workforce")q=q.eq("workforce_classification","NON_DOT");
    const x=await q.maybeSingle();if(x.error)throw x.error;if(!x.data||x.data.tenant_id!==tenant)return J({ok:false,error:"Organization scope mismatch"},403);
    account=x.data;
