@@ -27,7 +27,7 @@ function addResult(type,result,target=$('org-list')){
  const entries=result.requires_workspace_selection&&Array.isArray(result.workspaces)?result.workspaces:[null];
  for(const entry of entries){
   const name=entry?.organization?.dba_name||entry?.organization?.legal_name||entry?.organization_name||orgName(result);
-  const plan=entry?.plan_name||result.plan?.name||entry?.plan_code||result.plan?.code||(entry?.course_id?'Course '+String(entry.course_id).slice(0,8).toUpperCase():'Portal access');
+  const plan=entry?.plan_name||result.plan?.name||entry?.plan_code||result.plan?.code||'Portal access';
   const el=document.createElement('button');el.type='button';el.className='org-row';
   const av=document.createElement('span');av.className='avatar';
   const image=safeLogo(logoFor(entry))||safeLogo(logoFor(result));
@@ -35,7 +35,7 @@ function addResult(type,result,target=$('org-list')){
   else av.classList.add('no-logo');
   const info=document.createElement('span');info.className='org-info';
   const title=document.createElement('div');title.className='org-title';text(title,name);
-  const sub=document.createElement('div');sub.className='org-sub';text(sub,type.label+' · '+plan+(entry?.subscription_status?' · '+entry.subscription_status:'')+(entry?.subscription_id?' · Subscription '+String(entry.subscription_id).slice(0,8).toUpperCase():' · Portal entry')+(entry?.subscription_listing_only?' · Verification pending':''));
+  const sub=document.createElement('div');sub.className='org-sub';const accountType=({ctpa_dot:'DOT C/TPA',ctpa_employer_dot:'DOT Sponsored Employer',employer_dot:'DOT Employer',owner_operator:'DOT Owner-Operator',ctpa_workforce:'NON-DOT C/TPA',employer_workforce:'NON-DOT Employer',employee_workforce:'NON-DOT Employee',driver_workforce:'NON-DOT Driver',training_learner:'Learning Center',testing_customer:'Testing Customer'})[entry?.portal_code]||type.label;const displayPlan=plan==='Portal access'?'':(' · '+plan);text(sub,accountType+displayPlan+(entry?.subscription_status?' · '+entry.subscription_status:'')+(entry?.subscription_id?' · Subscription '+String(entry.subscription_id).slice(0,8).toUpperCase():' · Portal entry')+(entry?.subscription_listing_only?' · Verification pending':''));
   info.append(title,sub);
   const tag=document.createElement('span');tag.className='pill';text(tag,'Open workspace');
   const arrow=document.createElement('span');arrow.className='arrow';text(arrow,'→');
@@ -73,7 +73,7 @@ async function init(){
   const unique=new Map();
   for(const w of raw){
    const unit=w.business_unit||'other';
-   const key=unit==='training'?'training:learner':[w.portal_code,w.organization_id||'',w.subscription_id||'',w.membership_id||'',w.assignment_id||'',w.employee_id||''].join('|');
+   const key=unit==='training'?'training:learner':unit==='testing'?'testing:customer':[w.portal_code,w.organization_id||'',w.subscription_id||'',w.employee_id||'',w.assignment_id||''].join('|');
    if(!unique.has(key))unique.set(key,w);
   }
   const workspaces=[...unique.values()];
