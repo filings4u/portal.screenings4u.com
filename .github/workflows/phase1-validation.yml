@@ -1,0 +1,73 @@
+name: Phase 1 Portal Validation
+
+on:
+  push:
+    branches: [feature/unified-customer-workspaces]
+  pull_request:
+    paths:
+      - "portal/**"
+      - "workspace/**"
+      - "index.html"
+      - "supabase/functions/**"
+      - "supabase/patches/**"
+      - ".github/workflows/phase1-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax-and-schema:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Validate portal scripts
+        run: |
+          node --check portal/assets/portal-shell.js
+          node --check portal/assets/portal-module-manifest.js
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          class Scripts(HTMLParser):
+              def __init__(self): super().__init__(); self.in_script=False; self.scripts=[]
+              def handle_starttag(self, tag, attrs):
+                  if tag == "script" and not dict(attrs).get("src"):
+                      self.in_script=True; self.scripts.append("")
+              def handle_endtag(self, tag):
+                  if tag == "script": self.in_script=False
+              def handle_data(self, data):
+                  if self.in_script: self.scripts[-1]+=data
+          for name in ["index.html","workspace/index.html","portal/index.html"]:
+              parser=Scripts(); parser.feed(Path(name).read_text())
+              for index,script in enumerate(parser.scripts):
+                  if script.strip():
+                      Path("/tmp/phase1-inline-"+str(index)+".js").write_text(script)
+                      import subprocess
+                      subprocess.run(["node","--check","/tmp/phase1-inline-"+str(index)+".js"],check=True)
+              print(name, "inline scripts checked:",len(parser.scripts))
+          PY
+      - name: Validate registry and email catalog JSON
+        run: |
+          python3 -m json.tool portal/portal-integration-registry.json > /dev/null
+          python3 -m json.tool portal/email/event-catalog.json > /dev/null
+      - name: Type-check all new Supabase Edge Functions
+        run: |
+          set -eu
+          for entry in supabase/functions/*/index.ts; do
+            echo "Checking ${entry}"
+            deno check --no-config "${entry}"
+          done
+          for entry in supabase/patches/*/index.ts; do
+            if [ -f "${entry}" ]; then
+              echo "Checking staged replacement ${entry}"
+              deno check --no-config "${entry}"
+            fi
+          done
+      - name: Verify NON-DOT selected-account scope guards
+        run: python3 portal/tests/verify-nondot-account-scoping.py
+      - name: Type-check branded mail helpers
+        run: |
+          deno check --no-config portal/email/renderer.ts portal/email/brand-lookup.ts
