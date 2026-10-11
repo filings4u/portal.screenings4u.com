@@ -23,6 +23,6 @@ Deno.serve(async req=>{
    db.from("workforce_compliance_cases").select("id,status,priority").eq("employer_id",employerId).limit(100)
   ]);
   for(const q of [employees,programs,testing,pools,results,compliance])if(q.error)throw q.error;
-  return J({ok:true,portal_code:"employer_workforce",organization:ctx.organization,membership:{id:ctx.membership.id},subscription:{id:ctx.subscription.id},employer:{id:employerId},employees:employees.data||[],programs:programs.data||[],testing_orders:testing.data||[],pools:pools.data||[],results:results.data||[],compliance_cases:compliance.data||[]});
+  return J({ok:true,portal_code:"employer_workforce",organization:ctx.organization,membership:{id:ctx.membership.id},subscription:{id:ctx.subscription.id},employer:{id:employerId,organization_id:ctx.organization.id,tenant_id:ctx.account.tenant_id},employees:employees.data||[],programs:programs.data||[],testing_orders:testing.data||[],pools:pools.data||[],results:results.data||[],compliance_cases:compliance.data||[]});
  }catch(e){console.error("unified-nondot-employer-overview",e);return J({ok:false,error:"Unable to load selected employer"},500)}
 });
