@@ -9,6 +9,7 @@ on:
       - "workspace/**"
       - "index.html"
       - "supabase/functions/**"
+      - "supabase/patches/**"
       - ".github/workflows/phase1-validation.yml"
   workflow_dispatch:
 
@@ -58,6 +59,12 @@ jobs:
           for entry in supabase/functions/*/index.ts; do
             echo "Checking ${entry}"
             deno check --no-config "${entry}"
+          done
+          for entry in supabase/patches/*/index.ts; do
+            if [ -f "${entry}" ]; then
+              echo "Checking staged replacement ${entry}"
+              deno check --no-config "${entry}"
+            fi
           done
       - name: Type-check branded mail helpers
         run: |
