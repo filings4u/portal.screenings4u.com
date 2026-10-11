@@ -40,19 +40,16 @@ function addResult(type,result){
   const tag=document.createElement('span');tag.className='pill';text(tag,'Open workspace');
   const arrow=document.createElement('span');arrow.className='arrow';text(arrow,'→');
   el.append(av,info,tag,arrow);
-  el.onclick=async()=>{if(!entry){openWorkspace(type,result);return;}const key=[entry.portal_code||type.code,entry.organization_id||'',entry.subscription_id||'',entry.membership_id||'',entry.assignment_id||''].join('|');try{sessionStorage.setItem('s4u_selected_workspace_v1',JSON.stringify({user_id:session.user.id,workspace_key:key,selected_at:Date.now()}));location.assign('/portal/')}catch{alert('Unable to open account. Please enable session storage.')}return;
-   if(type.code.includes(':')||!types.some(t=>t.code===type.code)&&!['fmcsa_dot','faa_dot','fra_dot','fta_dot','phmsa_dot','uscg_dot'].includes(type.code)){openWorkspace(type,result,true);$('chooser').classList.add('hidden');text($('detail-name'),name);text($('detail-type'),type.label);text($('detail-status'),'This account is listed, but its workspace integration has not yet been enabled. Your existing permissions remain unchanged.');$('verified').classList.add('hidden');return}
-   openWorkspace(type,result,!!entry);
-   if(!entry)return;
-   if(entry.subscription_listing_only){$('chooser').classList.add('hidden');text($('detail-name'),entry.plan_name||name);text($('detail-status'),'This DOT subscription is associated with your account. Portal entry is not connected or independently verified yet.');$('verified').classList.add('hidden');return;}
-   const current=token;
-   $('chooser').classList.add('hidden');text($('detail-name'),name);text($('detail-status'),'Verifying your access to '+name+'…');
+  el.onclick=async()=>{
+   if(!entry){openWorkspace(type,result);return}
+   if(!entry.portal_code){alert('Account type is not configured.');return}
+   const key=[entry.portal_code,entry.organization_id||'',entry.subscription_id||'',entry.membership_id||'',entry.assignment_id||''].join('|');
    try{
-    const checked=await check(type.code,{membership_id:entry.membership_id,subscription_id:entry.subscription_id});
-    if(current!==token)return;
-    if(checked.requires_workspace_selection)throw Error('Organization selection is still required.');
-    showVerified(checked);
-   }catch(e){if(current===token){$('verified').classList.add('hidden');text($('detail-status'),e.message||'Unable to verify access.');$('chooser').classList.remove('hidden')}}
+    const {data:{user},error}=await sb.auth.getUser();
+    if(error||!user||user.id!==session?.user?.id)throw Error('Your session has expired. Sign in again.');
+    sessionStorage.setItem('s4u_selected_workspace_v1',JSON.stringify({user_id:user.id,workspace_key:key,selected_at:Date.now()}));
+    location.assign('/portal/');
+   }catch(e){alert(e.message||'Unable to select the account.')}
   };
   $('org-list').append(el);
  }
