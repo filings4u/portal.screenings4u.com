@@ -43,3 +43,7 @@ No production systems are modified by this file. No Phase 1 completion claim is 
 - DOT organization portal grants now require a non-null subscription and tenant ID and an active/trialing matching subscription in that same tenant before being advertised by discovery.
 - This is a listing filter only. Individual membership roles, subscription plan features, employee/driver assignment and portal-specific session checks still require verification.
 - New Edge Function sources remain uncompiled, undeployed and untested in protected staging. Do not cut over production or retire branches yet.
+
+## DOT inactive-plan discovery protection
+- Discovery now checks `plans.active=true` for each same-tenant active/trialing DOT subscription; inactive-plan workspaces are not offered.
+- Runtime authorization in the underlying DOT functions, role/feature checks, TypeScript compilation and staging tests remain required. This does not close Phase 1.
