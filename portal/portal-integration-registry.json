@@ -106,7 +106,8 @@
       "repository": "employer-fra-dot",
       "session_function": "fra-employer-dot-session",
       "connection_status": "inventory_only",
-      "customer_workspace": true
+      "customer_workspace": true,
+      "notes": "Existing employer repository config.js declares *_employee_dot and kind self, despite separate *_employer_dot backend service. Must correct/reconcile source before enabling."
     },
     {
       "domain": "fra-employee-dot.screenings4u.com",
@@ -124,7 +125,8 @@
       "repository": "employer-fta-dot",
       "session_function": "fta-employer-dot-session",
       "connection_status": "inventory_only",
-      "customer_workspace": true
+      "customer_workspace": true,
+      "notes": "Existing employer repository config.js declares *_employee_dot and kind self, despite separate *_employer_dot backend service. Must correct/reconcile source before enabling."
     },
     {
       "domain": "fta-employee-dot.screenings4u.com",
@@ -141,8 +143,9 @@
       "business_unit": "dot",
       "repository": "employer-phmsa-dot",
       "session_function": "phmsa-employer-dot-session",
-      "connection_status": "inventory_only",
-      "customer_workspace": true
+      "connection_status": "read_only_adapter_source",
+      "customer_workspace": true,
+      "notes": "Code-based session/actions adapter added; staging and account-identity tests needed before enabling."
     },
     {
       "domain": "phmsa-employee-dot.screenings4u.com",
@@ -150,8 +153,9 @@
       "business_unit": "dot",
       "repository": "phmsa-employee-dot",
       "session_function": "phmsa-employee-dot-session",
-      "connection_status": "inventory_only",
-      "customer_workspace": true
+      "connection_status": "read_only_adapter_source",
+      "customer_workspace": true,
+      "notes": "Code-based session/actions adapter added; staging and account-identity tests needed before enabling."
     },
     {
       "domain": "uscg-employer-dot.screenings4u.com",
@@ -159,8 +163,9 @@
       "business_unit": "dot",
       "repository": "employer-uscg-dot",
       "session_function": "uscg-employer-dot-session",
-      "connection_status": "inventory_only",
-      "customer_workspace": true
+      "connection_status": "read_only_adapter_source",
+      "customer_workspace": true,
+      "notes": "Code-based session/actions adapter added; staging and account-identity tests needed before enabling."
     },
     {
       "domain": "uscg-employee-dot.screenings4u.com",
@@ -168,8 +173,9 @@
       "business_unit": "dot",
       "repository": "uscg-employee-dot",
       "session_function": "uscg-employee-dot-session",
-      "connection_status": "inventory_only",
-      "customer_workspace": true
+      "connection_status": "read_only_adapter_source",
+      "customer_workspace": true,
+      "notes": "Code-based session/actions adapter added; staging and account-identity tests needed before enabling."
     },
     {
       "domain": "non-dot.screenings4u.com",
