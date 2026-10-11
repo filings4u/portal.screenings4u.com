@@ -116,6 +116,86 @@ function renderEmployerNondot(page){if(!employerNondotData)return;if(['people','
  if(fields[page])renderVerifiedRecords(collections[page],fields[page],page[0].toUpperCase()+page.slice(1),'Employer records from the selected verified subscription. Editing and sensitive access require authorization by the existing DOT service.');
 }
 
+async function manageCtpaEmployers(){
+ const w=selectedWorkspace;
+ if(!w||w.portal_code!=='ctpa_dot'||!w.membership_id||!w.subscription_id)return;
+ const root=$('content');
+ panel('Employer management','Loading authorized employer accounts…');
+ const call=async(action,extra={})=>{
+  const {data:{session},error}=await sb.auth.getSession();
+  if(error||!session)throw Error('Session expired. Please sign in again.');
+  const response=await fetch(ROOT+'/functions/v1/ctpa-dot-actions',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({endpoint:'workforce-ctpa-employers',action,membership_id:w.membership_id,subscription_id:w.subscription_id,...extra})});
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||result.error)throw Error(result.error||'Employer operation was not completed.');
+  if(selectedWorkspace!==w)throw Error('Workspace changed. Please reopen employer management.');
+  return result;
+ };
+ try{
+  const data=await call('workspace');
+  if((location.hash.slice(1)||'dashboard')!=='employers')return;
+  root.replaceChildren();
+  const section=document.createElement('section');section.className='panel';
+  const header=document.createElement('div');header.className='panel-head';
+  const h=document.createElement('h2');h.textContent='Manage employers';header.append(h);
+  const body=document.createElement('div');body.className='panel-body';
+  const controls=document.createElement('div');controls.style.cssText='display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:18px';
+  const search=document.createElement('input');search.type='search';search.placeholder='Search employer, contact or DOT number';search.setAttribute('aria-label','Search employers');search.style.cssText='min-width:260px;flex:1;border:1px solid #cbd8e8;border-radius:8px;padding:11px';
+  const add=document.createElement('button');add.type='button';add.className='utility';add.textContent='Add employer';add.disabled=data.can_manage!==true;
+  controls.append(search,add);
+  const message=document.createElement('div');message.setAttribute('role','status');message.style.cssText='margin:10px 0;color:#24467f';
+  const list=document.createElement('div');const formArea=document.createElement('div');
+  body.append(controls,message,list,formArea);section.append(header,body);root.append(section);
+  let employers=Array.isArray(data.employers)?data.employers:[];
+  const fields=[['legal_name','Legal company name',true],['dba_name','DBA name',false],['primary_contact_name','Primary contact name',true],['primary_contact_email','Primary contact email',true],['phone','Phone',true],['address_line1','Street address',true],['city','City',true],['state','State',true],['postal_code','Postal code',true],['country','Country',true],['applicable_dot_agency','DOT agency',true],['dot_number','DOT number',false]];
+  const renderList=()=>{
+   list.replaceChildren();
+   const query=search.value.trim().toLowerCase();
+   const matches=employers.filter(e=>[e.legal_name,e.dba_name,e.primary_contact_name,e.primary_contact_email,e.dot_number].some(v=>String(v||'').toLowerCase().includes(query)));
+   if(!matches.length){list.textContent='No employers match the current search.';return}
+   const table=document.createElement('table');table.className='record-table';
+   const thead=document.createElement('thead'),tr=document.createElement('tr');
+   for(const title of ['Employer','Contact','Agency','Status','Manage']){const th=document.createElement('th');th.textContent=title;tr.append(th)}thead.append(tr);table.append(thead);
+   const tbody=document.createElement('tbody');
+   for(const e of matches.slice(0,100)){
+    const row=document.createElement('tr');
+    for(const value of [e.legal_name||e.dba_name||'—',e.primary_contact_email||'—',e.applicable_dot_agency||'—',e.status||'—']){
+     const td=document.createElement('td');td.textContent=String(value);row.append(td)}
+    const td=document.createElement('td'),edit=document.createElement('button');edit.type='button';edit.className='utility';edit.textContent='Manage';edit.disabled=data.can_manage!==true;edit.onclick=()=>showForm(e);td.append(edit);row.append(td);tbody.append(row)
+   }
+   table.append(tbody);list.append(table);
+   if(matches.length>100){const foot=document.createElement('p');foot.textContent='Showing 100 employers. Refine your search to find a specific account.';list.append(foot)}
+  };
+  function showForm(original){
+   formArea.replaceChildren();const form=document.createElement('form');form.style.cssText='margin-top:24px;border-top:1px solid #d9e4f1;padding-top:20px';
+   const heading=document.createElement('h3');heading.textContent=original?'Edit employer':'Create employer';form.append(heading);
+   const grid=document.createElement('div');grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px';
+   for(const [key,label,required] of fields){
+    const wrap=document.createElement('label');wrap.style.cssText='display:flex;flex-direction:column;gap:5px;font-weight:600';wrap.textContent=label;
+    const input=document.createElement('input');input.name=key;input.required=required;input.value=String(original?.[key]??(key==='country'?'US':key==='applicable_dot_agency'?'FMCSA':''));input.type=key.endsWith('email')?'email':'text';input.style.cssText='border:1px solid #cbd8e8;border-radius:8px;padding:10px';wrap.append(input);grid.append(wrap)
+   }
+   form.append(grid);
+   const actions=document.createElement('div');actions.style.cssText='display:flex;gap:12px;margin-top:16px';
+   const save=document.createElement('button');save.type='submit';save.className='utility';save.textContent=original?'Save employer':'Create employer';
+   const cancel=document.createElement('button');cancel.type='button';cancel.className='utility';cancel.textContent='Cancel';cancel.onclick=()=>formArea.replaceChildren();
+   actions.append(save,cancel);form.append(actions);
+   form.onsubmit=async event=>{
+    event.preventDefault();save.disabled=true;message.textContent='Saving employer…';
+    const employer={};for(const [key] of fields)employer[key]=form.elements.namedItem(key).value.trim();
+    if(original?.id)employer.id=original.id;
+    try{
+     await call('save_employer',{employer});
+     const refreshed=await call('workspace');
+     employers=Array.isArray(refreshed.employers)?refreshed.employers:[];
+     formArea.replaceChildren();renderList();message.textContent='Employer saved successfully.';
+    }catch(err){message.textContent=err.message||'Unable to save employer.'}
+    finally{save.disabled=false}
+   };
+   formArea.append(form);form.scrollIntoView({block:'nearest',behavior:'smooth'})
+  }
+  search.oninput=renderList;add.onclick=()=>showForm(null);renderList();
+  if(data.can_manage!==true)message.textContent='Your current role can view employers but cannot change them.';
+ }catch(err){panel('Employer management unavailable',err.message||'The employer management service could not be verified.')}
+}
 async function manageCtpaPrograms(){
  const w=selectedWorkspace;
  if(!w||w.portal_code!=='ctpa_dot'||!w.membership_id||!w.subscription_id)return;
