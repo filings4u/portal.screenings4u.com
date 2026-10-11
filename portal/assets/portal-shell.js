@@ -217,7 +217,7 @@ async function manageCtpaPrograms(){
   const body=document.createElement('div');body.className='panel-body';section.append(body);root.append(section);
   const status=document.createElement('p');status.setAttribute('role','status');
   const search=document.createElement('input');search.type='search';search.placeholder='Search programs or employers';search.setAttribute('aria-label','Search programs');search.style.cssText='width:100%;max-width:440px;padding:11px;border:1px solid #cbd8e8;border-radius:8px;margin:0 12px 16px 0';
-  const add=document.createElement('button');add.type='button';add.className='utility';add.textContent='Create program';add.disabled=data.can_manage!==true&&data.can_manage_programs!==true;
+  const add=document.createElement('button');add.type='button';add.className='utility';add.textContent='Create program';const role=data.ctx?.membership||ctpaData?.ctx?.membership||{};const permissions=data.ctx?.entitlements||ctpaData?.ctx?.entitlements||{};add.disabled=!(data.can_manage===true||data.can_manage_programs===true||((role.is_primary===true||String(role.membership_role||'').includes('admin'))&&permissions.programs===true));
   const list=document.createElement('div'),editor=document.createElement('div');
   body.append(search,add,status,list,editor);
   const employers=Array.isArray(data.employers)?data.employers:(Array.isArray(ctpaData?.employers)?ctpaData.employers:[]);
@@ -282,7 +282,7 @@ async function manageCtpaModule(page){
   const bar=document.createElement('div');bar.style.cssText='display:flex;flex-wrap:wrap;gap:12px;margin-bottom:15px';
   const search=document.createElement('input');search.type='search';search.placeholder='Search '+page;search.setAttribute('aria-label','Search '+page);search.style.cssText='padding:10px;min-width:230px;flex:1;border:1px solid #cbd8e8;border-radius:8px';
   const create=document.createElement('button');create.className='utility';create.type='button';create.textContent=page==='testing'?'Request test':'Add '+(page==='people'?'person':'pool');
-  const canManage=result.can_manage===true;
+  const member=result.ctx?.membership||ctpaData?.ctx?.membership||{};const administrator=member.is_primary===true||String(member.membership_role||'').includes('admin');const entitlement=result.ctx?.entitlements||ctpaData?.ctx?.entitlements||{};const canManage=result.can_manage===true||(administrator&&(page==='people'?entitlement.employee_management===true:page==='pools'?entitlement.consortium_pools===true:entitlement.testing_orders===true));
   create.disabled=!canManage;
   bar.append(search,create);
   const feedback=document.createElement('p');feedback.setAttribute('role','status');
