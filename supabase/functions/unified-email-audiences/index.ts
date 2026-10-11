@@ -24,23 +24,13 @@ Deno.serve(async req=>{
   const rows=member.data||[];
   const ids=[...new Set(rows.map(x=>x.user_id).filter(Boolean))];
   if(!ids.includes(subject))return json({ok:false,error:"Subject is not an active account member"},403);
-  let admins:string[]=[];
-  if(dot){
-   const adminRoles=new Set(["owner","admin","administrator","employer_admin","ctpa_admin"]);
-   admins=rows.filter(x=>adminRoles.has(String(x.membership_role||"").toLowerCase())).map(x=>x.user_id);
-  }else{
-   const roleIds=[...new Set(rows.map(x=>x.role_id).filter(Boolean))];
-   const roles=roleIds.length?await db.from("workforce_roles").select("id,code").in("id",roleIds):{data:[],error:null};
-   if(roles.error)throw roles.error;
-   const granted=new Set((roles.data||[]).filter(x=>["owner","admin","administrator","employer_admin","ctpa_admin"].includes(String(x.code||"").toLowerCase())).map(x=>x.id));
-   admins=rows.filter(x=>granted.has(x.role_id)).map(x=>x.user_id);
-  }
   // Portal availability is a separate grant. Do not include administrators without it.
   const accessTable=dot?"organization_portal_access":"workforce_portal_access";
   const grant=await db.from(accessTable).select("id,subscription_id").eq("organization_id",org).eq("portal_code",portal).eq("subscription_id",subscription).eq("enabled",true).limit(1);
   if(grant.error)throw grant.error;if(!(grant.data||[]).length)return json({ok:false,error:"Portal grant not active"},403);
-  // Initial resolver cannot safely infer the affected resource or all administrator subscription grants.\n  // Restrict to verified subject only until role-resource checks are implemented.\n  const audience=[subject];
+  // Initial resolver cannot safely infer the affected resource or all administrator subscription grants.
+  // Restrict to verified subject only until role-resource checks are implemented.\n  const audience=[subject];
   // IDs only; trusted dispatcher must independently re-check event resource permission and recipient delivery preferences.
-  return json({ok:true,event_type:event,organization_id:org,portal_code:portal,subscription_id:subscription,recipients:audience.map(id=>({user_id:id,audiences:[...(id===subject?["customer"]:[]),...(admins.includes(id)?["organization_admin"]:[])]})),delivery_enabled:false});
+  return json({ok:true,event_type:event,organization_id:org,portal_code:portal,subscription_id:subscription,recipients:audience.map(id=>({user_id:id,audiences:["customer"]})),delivery_enabled:false});
  }catch(e){console.error("email-audience-resolution",e);return json({ok:false,error:"Unable to resolve notification audience"},500)}
 });
