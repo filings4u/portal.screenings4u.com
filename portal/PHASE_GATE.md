@@ -34,3 +34,7 @@ No production systems are modified by this file. No Phase 1 completion claim is 
 - NON-DOT organization discovery now requires same-tenant membership/grant and an active/trialing subscription with active plan. Explicit selected-account validators remain mandatory at entry and each data API.
 - Discovery must still be tested against two organizations, expired subscriptions, revoked grants, C/TPA sponsorship, employee/driver personal identities, and plan-feature limits. DOT organization grants and testing/learning identity paths also need targeted review.
 - Changes were committed to a source branch, NOT deployed. Phase 1 remains open; keep live preview branch cutover and deletion deferred until staging verification succeeds.
+
+## Testing Customer and LMS discovery correction
+- Discovery now excludes revoked Testing Customer portal-access rows and expired LMS enrollments. Account-specific services must independently confirm access and expiry at every request.
+- The filtering has not been validated through staged multi-user integration tests. Do not enable the live preview branch cutover yet.
