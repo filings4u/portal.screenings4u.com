@@ -430,7 +430,7 @@ function manageCtpaReports(){
  button.onclick=()=>{
   if(selectedWorkspace!==w){status.textContent='Workspace changed. Reopen reports.';return}
   const selected=sources[select.value];if(!selected)return;
-  const safeCell=v=>{const t=String(v??'').replace(/^[\s]*[=+\-@\t\r]/,'\\u0027function pageSelect(){');return '"'+t.replaceAll('"','""')+'"';};
+  const safeCell=v=>{const value=String(v??'');const t=/^[\s]*[=+\-@\t\r]/.test(value)?String.fromCharCode(39)+value:value;return '"'+t.replaceAll('"','""')+'"';};
   const csv=[selected.columns.map(([label])=>safeCell(label)).join(','),...selected.data.slice(0,5000).map(r=>selected.columns.map(([,key])=>safeCell(r?.[key])).join(','))].join('\r\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='screenings4u-ctpa-'+select.value+'-summary.csv';document.body.append(link);link.click();link.remove();URL.revokeObjectURL(url);status.textContent='CSV summary exported from the current authorized workspace.'
  };
