@@ -47,3 +47,8 @@ No production systems are modified by this file. No Phase 1 completion claim is 
 ## DOT inactive-plan discovery protection
 - Discovery now checks `plans.active=true` for each same-tenant active/trialing DOT subscription; inactive-plan workspaces are not offered.
 - Runtime authorization in the underlying DOT functions, role/feature checks, TypeScript compilation and staging tests remain required. This does not close Phase 1.
+
+## Customer-only discovery allowlist audit
+- Discovery now refuses to emit public/management portal codes or unverified sponsored NON-DOT variants, even if a database grant exists. This protects the customer-facing selector from accidentally showing administrative applications.
+- Syntax-only validation passed for portal-shell.js, portal-module-manifest.js and workspace/index.html JavaScript.
+- Full TypeScript compilation, authenticated integration testing, staging deployments, remaining role mappings, operational modules and real browser checks are still outstanding. Do not close Phase 1 or merge into the deployment branch.
