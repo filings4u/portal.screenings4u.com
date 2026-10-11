@@ -105,9 +105,9 @@
       "business_unit": "dot",
       "repository": "employer-fra-dot",
       "session_function": "fra-employer-dot-session",
-      "connection_status": "inventory_only",
+      "connection_status": "read_only_adapter_source",
       "customer_workspace": true,
-      "notes": "Existing employer repository config.js declares *_employee_dot and kind self, despite separate *_employer_dot backend service. Must correct/reconcile source before enabling."
+      "notes": "Matching Edge Function route added to draft shell; FRA/FTA employer legacy repository config still incorrectly self-identifies as employee, staging verification required."
     },
     {
       "domain": "fra-employee-dot.screenings4u.com",
@@ -115,8 +115,9 @@
       "business_unit": "dot",
       "repository": null,
       "session_function": "fra-employee-dot-session",
-      "connection_status": "inventory_only",
-      "customer_workspace": true
+      "connection_status": "read_only_adapter_source",
+      "customer_workspace": true,
+      "notes": "Matching Edge Function route added to draft shell; FRA/FTA employer legacy repository config still incorrectly self-identifies as employee, staging verification required."
     },
     {
       "domain": "fta-employer-dot.screenings4u.com",
@@ -124,9 +125,9 @@
       "business_unit": "dot",
       "repository": "employer-fta-dot",
       "session_function": "fta-employer-dot-session",
-      "connection_status": "inventory_only",
+      "connection_status": "read_only_adapter_source",
       "customer_workspace": true,
-      "notes": "Existing employer repository config.js declares *_employee_dot and kind self, despite separate *_employer_dot backend service. Must correct/reconcile source before enabling."
+      "notes": "Matching Edge Function route added to draft shell; FRA/FTA employer legacy repository config still incorrectly self-identifies as employee, staging verification required."
     },
     {
       "domain": "fta-employee-dot.screenings4u.com",
@@ -134,8 +135,9 @@
       "business_unit": "dot",
       "repository": null,
       "session_function": "fta-employee-dot-session",
-      "connection_status": "inventory_only",
-      "customer_workspace": true
+      "connection_status": "read_only_adapter_source",
+      "customer_workspace": true,
+      "notes": "Matching Edge Function route added to draft shell; FRA/FTA employer legacy repository config still incorrectly self-identifies as employee, staging verification required."
     },
     {
       "domain": "phmsa-employer-dot.screenings4u.com",
@@ -202,7 +204,8 @@
       "repository": null,
       "session_function": "nondot-workforce-session-context",
       "connection_status": "inventory_only",
-      "customer_workspace": true
+      "customer_workspace": true,
+      "notes": "Existing workforce portal code or legacy host needs account-scoped session authorization. No unified operational adapter yet."
     },
     {
       "domain": "ctpa-employee-non-dot.screenings4u.com",
@@ -211,7 +214,8 @@
       "repository": null,
       "session_function": "nondot-workforce-session-context",
       "connection_status": "inventory_only",
-      "customer_workspace": true
+      "customer_workspace": true,
+      "notes": "Existing workforce portal code or legacy host needs account-scoped session authorization. No unified operational adapter yet."
     },
     {
       "domain": "ctpa-driver-non-dot.screenings4u.com",
@@ -220,7 +224,8 @@
       "repository": null,
       "session_function": "nondot-workforce-session-context",
       "connection_status": "inventory_only",
-      "customer_workspace": true
+      "customer_workspace": true,
+      "notes": "Existing workforce portal code or legacy host needs account-scoped session authorization. No unified operational adapter yet."
     },
     {
       "domain": "employer-non-dot.screenings4u.com",
@@ -229,7 +234,8 @@
       "repository": "employer-non-dot",
       "session_function": "nondot-workforce-session-context",
       "connection_status": "inventory_only",
-      "customer_workspace": true
+      "customer_workspace": true,
+      "notes": "Existing workforce portal code or legacy host needs account-scoped session authorization. No unified operational adapter yet."
     },
     {
       "domain": "employee-non-dot.screenings4u.com",
@@ -238,7 +244,8 @@
       "repository": "employee-workforce",
       "session_function": "nondot-workforce-session-context",
       "connection_status": "inventory_only",
-      "customer_workspace": true
+      "customer_workspace": true,
+      "notes": "Existing workforce portal code or legacy host needs account-scoped session authorization. No unified operational adapter yet."
     },
     {
       "domain": "driver-non-dot.screenings4u.com",
@@ -247,7 +254,8 @@
       "repository": "driver-workforce",
       "session_function": "nondot-workforce-session-context",
       "connection_status": "inventory_only",
-      "customer_workspace": true
+      "customer_workspace": true,
+      "notes": "Existing workforce portal code or legacy host needs account-scoped session authorization. No unified operational adapter yet."
     },
     {
       "domain": "non-dot-portal.screenings4u.com",
