@@ -46,8 +46,9 @@
       "business_unit": "dot",
       "repository": "employer-faa-dot",
       "session_function": "faa-employer-dot-session",
-      "connection_status": "inventory_only",
-      "customer_workspace": true
+      "connection_status": "read_only_adapter_source",
+      "customer_workspace": true,
+      "notes": "FAA session/actions adapter code committed, exact membership/subscription validation and staging tests pending."
     },
     {
       "domain": "faa-employee-dot.screenings4u.com",
@@ -55,8 +56,9 @@
       "business_unit": "dot",
       "repository": "faa-employee-dot",
       "session_function": "faa-employee-dot-session",
-      "connection_status": "inventory_only",
-      "customer_workspace": true
+      "connection_status": "read_only_adapter_source",
+      "customer_workspace": true,
+      "notes": "FAA session/actions adapter code committed, exact membership/subscription validation and staging tests pending."
     },
     {
       "domain": "fmcsa-employer-dot.screenings4u.com",
@@ -65,7 +67,8 @@
       "repository": "employer-fmcsa-dot",
       "session_function": "fmcsa-dot-session",
       "connection_status": "inventory_only",
-      "customer_workspace": true
+      "customer_workspace": true,
+      "notes": "FMCSA legacy host needs exact backend role/portal-code mapping; do not substitute fmcsa_dot, driver_dot or employee_dot without verified identity context."
     },
     {
       "domain": "fmcsa-driver-dot.screenings4u.com",
@@ -74,7 +77,8 @@
       "repository": "driver-fmcsa-dot",
       "session_function": "driver-dot-session",
       "connection_status": "inventory_only",
-      "customer_workspace": true
+      "customer_workspace": true,
+      "notes": "FMCSA legacy host needs exact backend role/portal-code mapping; do not substitute fmcsa_dot, driver_dot or employee_dot without verified identity context."
     },
     {
       "domain": "fmcsa-employee-dot.screenings4u.com",
@@ -83,7 +87,8 @@
       "repository": "employee-dot",
       "session_function": "employee-dot-session",
       "connection_status": "inventory_only",
-      "customer_workspace": true
+      "customer_workspace": true,
+      "notes": "FMCSA legacy host needs exact backend role/portal-code mapping; do not substitute fmcsa_dot, driver_dot or employee_dot without verified identity context."
     },
     {
       "domain": "owner-operator.screenings4u.com",
