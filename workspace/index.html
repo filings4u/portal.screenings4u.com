@@ -35,7 +35,7 @@ function addResult(type,result){
   else av.classList.add('no-logo');
   const info=document.createElement('span');info.className='org-info';
   const title=document.createElement('div');title.className='org-title';text(title,name);
-  const sub=document.createElement('div');sub.className='org-sub';text(sub,type.label+' · '+plan+(entry?.subscription_listing_only?' · Verification pending':''));
+  const sub=document.createElement('div');sub.className='org-sub';text(sub,type.label+' · '+plan+(entry?.subscription_status?' · '+entry.subscription_status:'')+(entry?.subscription_id?' · Subscription '+String(entry.subscription_id).slice(0,8).toUpperCase():' · Portal entry')+(entry?.subscription_listing_only?' · Verification pending':''));
   info.append(title,sub);
   const tag=document.createElement('span');tag.className='pill';text(tag,'Open workspace');
   const arrow=document.createElement('span');arrow.className='arrow';text(arrow,'→');
