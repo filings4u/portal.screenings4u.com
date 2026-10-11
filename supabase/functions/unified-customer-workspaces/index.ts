@@ -78,6 +78,33 @@ Deno.serve(async req=>{
       if(!sub||sub.tenant_id!==tenantOf.get(w.membership_id)||!plans.has(sub.plan_id))workspaces.splice(i,1);
     }
   }
+  // C/TPA portal ENTRY is based on an active C/TPA record and signed-in membership,
+  // not on purchasing separate DOT and NON-DOT portal grants. Subscriptions govern modules.
+  // Entries without matching subscriptions remain visible but are NOT authorized for business actions.
+  const activeDotMembers=(members.data||[]).filter(m=>orgMap.has(m.organization_id));
+  const activeNondotMembers=(workforceMembers.data||[]).filter(m=>orgMap.has(m.organization_id));
+  const [ctpaDotQ,ctpaNondotQ]=await Promise.all([
+   activeDotMembers.length?db.from("ctpas").select("id,organization_id,tenant_id").in("organization_id",[...new Set(activeDotMembers.map(m=>m.organization_id))]).eq("status","active"):Promise.resolve({data:[],error:null}),
+   activeNondotMembers.length?db.from("workforce_ctpas").select("id,organization_id,tenant_id").in("organization_id",[...new Set(activeNondotMembers.map(m=>m.organization_id))]).eq("status","active"):Promise.resolve({data:[],error:null})
+  ]);
+  if(ctpaDotQ.error)throw ctpaDotQ.error;
+  if(ctpaNondotQ.error)throw ctpaNondotQ.error;
+  for(const m of activeDotMembers){
+   const o=orgMap.get(m.organization_id);
+   for(const acct of (ctpaDotQ.data||[]).filter(x=>x.organization_id===m.organization_id)){
+    if(!o)continue;
+    const existing=workspaces.find(w=>w.portal_code==="ctpa_dot"&&w.organization_id===o.id&&w.membership_id===m.id);
+    if(!existing)add({portal_code:"ctpa_dot",business_unit:"dot",organization_id:o.id,organization_name:name(o),membership_id:m.id,subscription_id:null,ctpa_id:acct.id,role_code:m.membership_role,access_source:"verified_ctpa_membership",verification:"required",entry_only:true});
+   }
+  }
+  for(const m of activeNondotMembers){
+   const o=orgMap.get(m.organization_id);
+   for(const acct of (ctpaNondotQ.data||[]).filter(x=>x.organization_id===m.organization_id&&x.tenant_id===m.tenant_id)){
+    if(!o)continue;
+    const existing=workspaces.find(w=>w.portal_code==="ctpa_workforce"&&w.organization_id===o.id&&w.membership_id===m.id);
+    if(!existing)add({portal_code:"ctpa_workforce",business_unit:"nondot",organization_id:o.id,organization_name:name(o),membership_id:m.id,subscription_id:null,ctpa_id:acct.id,role_code:roleMap.get(m.role_id)?.code||"member",access_source:"verified_ctpa_membership",verification:"required",entry_only:true});
+   }
+  }
   // Self-service NON-DOT cards require a real employee identity AND matching active subscription.
   const selfCodes=["employee_workforce","driver_workforce"];
   const selfGrants=(assignments.data||[]).filter(a=>selfCodes.includes(a.portal_code)&&orgMap.has(a.organization_id));
