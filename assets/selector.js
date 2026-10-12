@@ -35,7 +35,7 @@ if(!p.setup_only){
  'ctpa-non-dot.screenings4u.com':'ctpa_workforce',
 
  'employee-non-dot.screenings4u.com':'employee_workforce',
- 'driver-non-dot.screenings4u.com':'driver_workforce',
+
  'ctpa-employer-non-dot.screenings4u.com':'ctpa_employer_workforce',
  'ctpa-employee-non-dot.screenings4u.com':'ctpa_employee_workforce',
  'ctpa-driver-non-dot.screenings4u.com':'ctpa_driver_workforce'
