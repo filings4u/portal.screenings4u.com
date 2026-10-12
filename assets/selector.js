@@ -33,7 +33,7 @@ if(!p.setup_only){
  'phmsa-employee-dot.screenings4u.com':'phmsa_employee_dot',
  'uscg-employee-dot.screenings4u.com':'uscg_employee_dot',
  'ctpa-non-dot.screenings4u.com':'ctpa_workforce',
- 'employer-non-dot.screenings4u.com':'employer_workforce',
+
  'employee-non-dot.screenings4u.com':'employee_workforce',
  'driver-non-dot.screenings4u.com':'driver_workforce',
  'ctpa-employer-non-dot.screenings4u.com':'ctpa_employer_workforce',
