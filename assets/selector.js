@@ -34,7 +34,8 @@ if(!p.setup_only){
  'uscg-employee-dot.screenings4u.com':'uscg_employee_dot',
  'ctpa-non-dot.screenings4u.com':'ctpa_workforce',
  'employer-non-dot.screenings4u.com':'employer_workforce',
- 'employee-non-dot.screenings4u.com':'employee_workforce'
+ 'employee-non-dot.screenings4u.com':'employee_workforce',
+ 'driver-non-dot.screenings4u.com':'driver_workforce'
  };
  const dest=new URL(p.launch_url);
  const portal=destinations[dest.hostname];
