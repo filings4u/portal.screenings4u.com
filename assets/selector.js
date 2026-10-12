@@ -26,7 +26,7 @@ if(!p.setup_only){
  'fra-employer-dot.screenings4u.com':'fra_employer_dot',
  'fta-employer-dot.screenings4u.com':'fta_employer_dot',
  'phmsa-employer-dot.screenings4u.com':'phmsa_employer_dot',
- 'employer-uscg-dot.screenings4u.com':'uscg_employer_dot',
+ 'uscg-employer-dot.screenings4u.com':'uscg_employer_dot',
  'faa-employee-dot.screenings4u.com':'faa_employee_dot',
  'employee-fra-dot.screenings4u.com':'fra_employee_dot',
  'employee-fta-dot.screenings4u.com':'fta_employee_dot',
