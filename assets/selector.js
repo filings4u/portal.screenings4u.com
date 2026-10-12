@@ -32,9 +32,9 @@ if(!p.setup_only){
  'fta-employee-dot.screenings4u.com':'fta_employee_dot',
  'phmsa-employee-dot.screenings4u.com':'phmsa_employee_dot',
  'uscg-employee-dot.screenings4u.com':'uscg_employee_dot',
- 'ctpa-workforce.screenings4u.com':'ctpa_workforce',
- 'employer-workforce.screenings4u.com':'employer_workforce',
- 'employee-workforce.screenings4u.com':'employee_workforce'
+ 'ctpa-non-dot.screenings4u.com':'ctpa_workforce',
+ 'employer-non-dot.screenings4u.com':'employer_workforce',
+ 'employee-non-dot.screenings4u.com':'employee_workforce'
  };
  const dest=new URL(p.launch_url);
  const portal=destinations[dest.hostname];
