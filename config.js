@@ -5,7 +5,7 @@ window.S4U_ACCESS_CONFIG = Object.freeze({
   supabasePublishableKey: 'sb_publishable_xVI6Mjkk1bNVMGHZCPuK6w_8FSHKdkC',
   authStorageKey: 's4u_central_portal_auth_v1',
   /* Register portal.screenings4u.com as a permitted Turnstile hostname and provide the site key. */
-  turnstileSiteKey: '',
+  turnstileSiteKey: '0x4AAAAAAE4-F43E-viFsKat',
   /* Authenticated POST: return {portals:[{id,title,organization,plan,portal_type,launch_url}]}.
      Backend MUST verify each subscription and generate only authorized launch URLs. */
   selectorEndpoint: 'https://elpbnytpciqnbexiaebp.supabase.co/functions/v1/central-portal-selector',
