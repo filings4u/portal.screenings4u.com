@@ -41,7 +41,7 @@ if(!p.setup_only){
  'ctpa-driver-non-dot.screenings4u.com':'ctpa_driver_workforce'
  };
  const dest=new URL(p.launch_url);
- const portal=destinations[dest.hostname];
+ const portal=dest.hostname==='independent-contractor.screenings4u.com'?p.portal_code:destinations[dest.hostname];
  if(portal){
  a.addEventListener('click',async event=>{
  event.preventDefault();event.stopImmediatePropagation();
@@ -54,6 +54,7 @@ if(!p.setup_only){
  const payload={action:'create',surface,portal_code:portal,next:'/dashboard.html'};
  if(p.membership_id)payload.membership_id=p.membership_id;
  if(p.employee_id)payload.employee_id=p.employee_id;
+ if(p.assignment_id)payload.assignment_id=p.assignment_id;
  if(portal==='ctpa_dot'&&p.ctpa_id&&p.subscription_id)payload.next='/workspace.html?ctpa_id='+encodeURIComponent(p.ctpa_id)+'&subscription_id='+encodeURIComponent(p.subscription_id);
  if(portal==='ctpa_employer_dot'&&p.membership_id&&p.subscription_id)payload.next='/dashboard.html?membership_id='+encodeURIComponent(p.membership_id)+'&subscription_id='+encodeURIComponent(p.subscription_id);
  const response=await fetch(cfg.supabaseUrl+'/functions/v1/portal-session-handoff',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+current.access_token,apikey:cfg.supabasePublishableKey},body:JSON.stringify(payload)});
