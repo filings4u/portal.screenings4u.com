@@ -41,7 +41,7 @@ if(!p.setup_only){
  'ctpa-driver-non-dot.screenings4u.com':'ctpa_driver_workforce'
  };
  const dest=new URL(p.launch_url);
- const portal=dest.hostname==='independent-contractor.screenings4u.com'?p.portal_code:destinations[dest.hostname];
+ const portal=dest.hostname==='independent-contractor.screenings4u.com'?'independent_contractor':destinations[dest.hostname];
  if(portal){
  a.addEventListener('click',async event=>{
  event.preventDefault();event.stopImmediatePropagation();
