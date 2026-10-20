@@ -55,6 +55,16 @@ if(!p.setup_only){
  if(p.membership_id)payload.membership_id=p.membership_id;
  if(p.employee_id)payload.employee_id=p.employee_id;
  if(p.assignment_id)payload.assignment_id=p.assignment_id;
+ // Handoff pages require the exact verified workspace identifiers selected here.
+ // Never manufacture IDs or infer access from URL parameters.
+ if(portal==='ctpa_workforce'&&p.ctpa_id&&p.subscription_id&&p.membership_id){
+  const q=new URLSearchParams({ctpa_id:String(p.ctpa_id),subscription_id:String(p.subscription_id),membership_id:String(p.membership_id)});
+  if(p.organization_id)q.set('organization_id',String(p.organization_id));
+  payload.next='/dashboard.html?'+q.toString();
+ }
+ if(portal==='employer_dot'&&p.membership_id){
+  payload.next='/dashboard.html?'+new URLSearchParams({membership_id:String(p.membership_id)}).toString();
+ }
  if(portal==='ctpa_dot'&&p.ctpa_id&&p.subscription_id)payload.next='/workspace.html?ctpa_id='+encodeURIComponent(p.ctpa_id)+'&subscription_id='+encodeURIComponent(p.subscription_id);
  if(portal==='ctpa_employer_dot'&&p.membership_id&&p.subscription_id)payload.next='/dashboard.html?membership_id='+encodeURIComponent(p.membership_id)+'&subscription_id='+encodeURIComponent(p.subscription_id);
  const response=await fetch(cfg.supabaseUrl+'/functions/v1/portal-session-handoff',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+current.access_token,apikey:cfg.supabasePublishableKey},body:JSON.stringify(payload)});
