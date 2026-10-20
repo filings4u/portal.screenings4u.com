@@ -61,7 +61,7 @@ if(!p.setup_only){
  const result=await response.json().catch(()=>({}));
  if(!response.ok||!result.redirect_url)throw Error(result.error||'Unable to open this portal.');
  const target=new URL(result.redirect_url);
- if(target.protocol!=='https:'||(target.hostname!==dest.hostname&&target.hostname!=='app-workforce.screenings4u.com')||target.pathname!=='/auth-handoff.html')throw Error('Portal destination does not match the authorized workspace.');
+ if(target.protocol!=='https:'||target.hostname!==dest.hostname||target.pathname!=='/auth-handoff.html')throw Error('Portal destination does not match the authorized workspace.');
  location.assign(target.href);
  }catch(error){message.textContent=error.message||'Unable to open portal.';message.className='notice error';a.dataset.busy='0';a.textContent='Open portal →'}
  },true);
