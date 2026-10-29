@@ -7,7 +7,6 @@ document.querySelector('#signout').addEventListener('click',async()=>{await sb.a
 function paint(){const q=search.value.trim().toLowerCase();const subset=rows.filter(r=>[r.title,r.organization,r.plan,r.portal_type].some(s=>String(s||'').toLowerCase().includes(q)));count.textContent=subset.length+' shown';if(!subset.length){empty(rows.length?'No matches found':'No authorized subscriptions','Your account has no matching workspaces.');return}root.replaceChildren();for(const p of subset){const card=document.createElement('article');card.className='portal-card';const head=document.createElement('div');head.className='card-head';const symbol=document.createElement('div');symbol.className='card-symbol';symbol.textContent=(p.title||p.portal_type||'P').slice(0,2).toUpperCase();const titlewrap=document.createElement('div');const title=document.createElement('h4');title.textContent=p.title||'Workspace';const business=document.createElement('p');business.textContent=p.organization||'Authorized organization';const hostline=document.createElement('small');hostline.className='portal-hostname';hostline.textContent=new URL(p.launch_url).hostname;titlewrap.append(title,business,hostline);head.append(symbol,titlewrap);const meta=document.createElement('div');meta.className='card-meta';for(const v of [p.portal_type,p.plan])if(v){const tag=document.createElement('span');tag.className='tag';tag.textContent=v;meta.append(tag)}const a=document.createElement('a');a.className='enter';a.textContent=p.setup_only?'Open portal (setup) →':'Open portal →';a.href=p.launch_url;a.rel='noopener noreferrer';if(p.setup_only){a.removeAttribute('href');a.setAttribute('aria-disabled','true');a.style.cursor='not-allowed';a.title='Awaiting authorized employer assignment';a.textContent='Awaiting access assignment';a.addEventListener('click',event=>{event.preventDefault();message.textContent='This portal is registered but this account does not yet have a verified subscription or employer membership for it.';message.className='notice error'});}// Use the central handoff for every supported portal instead of navigating without a session.
 if(!p.setup_only){
  const destinations={
- 'lab-account.screenings4u.com':'lab_account',
  'ctpa-dot.screenings4u.com':'ctpa_dot',
  'ctpa-employer-dot.screenings4u.com':'ctpa_employer_dot',
  'ctpa-employee-dot.screenings4u.com':'ctpa_employee_dot',
@@ -51,7 +50,7 @@ if(!p.setup_only){
  try{
  const {data:{session:current},error:sessionError}=await sb.auth.getSession();
  if(sessionError||!current)throw Error('Session expired. Sign in again.');
- const surface=portal==='lab_account'?'lab':portal.endsWith('_workforce')?'workforce':'dot';
+ const surface=portal.endsWith('_workforce')?'workforce':'dot';
  const payload={action:'create',surface,portal_code:portal,next:'/dashboard.html'};
  if(p.membership_id)payload.membership_id=p.membership_id;
  if(p.employee_id)payload.employee_id=p.employee_id;
